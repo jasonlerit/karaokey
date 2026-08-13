@@ -11,6 +11,7 @@ import {
 } from '@/common/room-credentials'
 import { getRoomRetentionCutoff } from '@/common/data-retention'
 import { getRoomExpiration } from '@/common/room-lifecycle'
+import { recordOperationalEvent } from '@/common/operational-events'
 import { db } from '@/db'
 import { queueItems, rooms, type Room } from '@/db/schemas'
 
@@ -98,13 +99,17 @@ const deleteRetainedRoomData = (now: Date) => {
 
 export const expireRooms = async (now = new Date()) => {
   const expired = await expireRoomsOnly(now)
+  if (expired.length > 0) recordOperationalEvent({ event: 'rooms_expired', count: expired.length })
   await deleteRetainedRoomData(now)
   return expired
 }
 
 export const cleanupExpiredRoomData = async (now = new Date()) => {
-  await expireRoomsOnly(now)
-  return deleteRetainedRoomData(now)
+  const expired = await expireRoomsOnly(now)
+  if (expired.length > 0) recordOperationalEvent({ event: 'rooms_expired', count: expired.length })
+  const deleted = await deleteRetainedRoomData(now)
+  recordOperationalEvent({ event: 'retention_cleanup', count: deleted.length })
+  return deleted
 }
 
 const findRoom = async (roomId: string, now = new Date()) => {
@@ -138,6 +143,8 @@ export const createRoom = async (now = new Date()): Promise<CreateRoomResult> =>
         .returning()
 
       if (!room) throw new Error('Room creation did not return a room')
+
+      recordOperationalEvent({ event: 'room_created' })
 
       return { room: toRoomView(room), joinToken, hostCredential }
     } catch (error) {

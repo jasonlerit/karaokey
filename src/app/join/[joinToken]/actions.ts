@@ -5,6 +5,7 @@ import { headers } from 'next/headers'
 
 import { saveGuestRoomSession } from '@/common/guest-session-cookie'
 import { createGuestSession } from '@/common/guest-sessions'
+import { recordOperationalEvent } from '@/common/operational-events'
 import { checkRateLimit } from '@/common/rate-limit'
 
 export type JoinRoomState = { message: string }
@@ -39,5 +40,6 @@ export const joinRoomAction = async (
   }
 
   await saveGuestRoomSession(result.guest.roomId, result.credential)
+  recordOperationalEvent({ event: 'guest_joined' })
   redirect(`/join/${joinToken}`)
 }

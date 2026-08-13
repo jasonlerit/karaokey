@@ -4,6 +4,7 @@ import { getGuestRoomCredential } from '@/common/guest-session-cookie'
 import { getGuestSessionByRoomId } from '@/common/guest-sessions'
 import { addQueueItem, getQueueItemByIdempotencyKey } from '@/common/queue-items'
 import { checkRateLimit, rateLimitResponse } from '@/common/rate-limit'
+import { recordOperationalEvent } from '@/common/operational-events'
 import { validateYouTubeVideo, YouTubeApiError, youtubeVideoIdSchema } from '@/lib/youtube'
 
 export const dynamic = 'force-dynamic'
@@ -71,6 +72,7 @@ export async function POST(request: Request, context: { params: Promise<{ roomId
       const status = error.code === 'quota_exceeded' ? 429 : 503
       return Response.json({ code: error.code }, { status })
     }
+    recordOperationalEvent({ event: 'queue_failure', operation: 'add' })
     return Response.json({ code: 'unavailable' }, { status: 503 })
   }
 }

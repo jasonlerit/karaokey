@@ -6,6 +6,7 @@ import { getHostCredential } from '@/common/host-room-session'
 import { removeQueueItem, removeQueueItemAsHost } from '@/common/queue-items'
 import { checkRateLimit, rateLimitResponse } from '@/common/rate-limit'
 import { getHostRoom } from '@/common/rooms'
+import { recordOperationalEvent } from '@/common/operational-events'
 
 export const dynamic = 'force-dynamic'
 
@@ -58,6 +59,7 @@ export async function DELETE(
     }
     return Response.json(result)
   } catch {
+    recordOperationalEvent({ event: 'queue_failure', operation: 'remove' })
     return Response.json({ code: 'unavailable' }, { status: 503 })
   }
 }

@@ -3,6 +3,7 @@ import 'server-only'
 import { z } from 'zod'
 
 import { env } from '@/common/env'
+import { recordOperationalEvent } from '@/common/operational-events'
 import { parseYouTubeDuration } from '@/common/youtube-duration'
 
 const YOUTUBE_API_BASE_URL = 'https://www.googleapis.com/youtube/v3'
@@ -77,8 +78,15 @@ export class YouTubeApiError extends Error {
   }
 }
 
-const requestYouTube = async (path: string, parameters: Record<string, string>) => {
-  if (!env.YOUTUBE_API_KEY) throw new YouTubeApiError('not_configured')
+const requestYouTube = async (path: 'search' | 'videos', parameters: Record<string, string>) => {
+  if (!env.YOUTUBE_API_KEY) {
+    recordOperationalEvent({
+      event: 'youtube_api_request',
+      operation: path,
+      outcome: 'not_configured',
+    })
+    throw new YouTubeApiError('not_configured')
+  }
 
   const url = new URL(`${YOUTUBE_API_BASE_URL}/${path}`)
   Object.entries({ ...parameters, key: env.YOUTUBE_API_KEY }).forEach(([key, value]) =>
@@ -92,6 +100,11 @@ const requestYouTube = async (path: string, parameters: Record<string, string>) 
       signal: AbortSignal.timeout(YOUTUBE_REQUEST_TIMEOUT_MS),
     })
   } catch {
+    recordOperationalEvent({
+      event: 'youtube_api_request',
+      operation: path,
+      outcome: 'unavailable',
+    })
     throw new YouTubeApiError('unavailable')
   }
 
@@ -100,11 +113,22 @@ const requestYouTube = async (path: string, parameters: Record<string, string>) 
     const error = youtubeErrorSchema.safeParse(body)
     const reasons = error.success ? error.data.error.errors?.map(({ reason }) => reason) : []
     if (reasons?.some((reason) => reason === 'quotaExceeded' || reason === 'dailyLimitExceeded')) {
+      recordOperationalEvent({
+        event: 'youtube_api_request',
+        operation: path,
+        outcome: 'quota_exceeded',
+      })
       throw new YouTubeApiError('quota_exceeded')
     }
+    recordOperationalEvent({
+      event: 'youtube_api_request',
+      operation: path,
+      outcome: 'unavailable',
+    })
     throw new YouTubeApiError('unavailable')
   }
 
+  recordOperationalEvent({ event: 'youtube_api_request', operation: path, outcome: 'ok' })
   return body
 }
 

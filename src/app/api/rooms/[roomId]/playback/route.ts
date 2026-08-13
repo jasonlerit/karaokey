@@ -8,6 +8,7 @@ import {
   synchronizePlayback,
 } from '@/common/playback-lifecycle'
 import { getHostRoom } from '@/common/rooms'
+import { recordOperationalEvent } from '@/common/operational-events'
 
 export const dynamic = 'force-dynamic'
 
@@ -59,11 +60,15 @@ export async function POST(request: Request, context: { params: Promise<{ roomId
           ? await advancePlayback({ roomId, ...command })
           : await synchronizePlayback({ roomId, ...command })
 
+    if (command.action === 'advance' && command.outcome === 'failed' && result.code === 'ok') {
+      recordOperationalEvent({ event: 'playback_failure', category: 'video_failed' })
+    }
     return result.code === 'ok' ? Response.json(result) : respondWithError(result.code)
   } catch (error) {
     if (error instanceof z.ZodError) {
       return Response.json({ code: 'invalid_request' }, { status: 400 })
     }
+    recordOperationalEvent({ event: 'playback_failure', category: 'service_unavailable' })
     return Response.json({ code: 'unavailable' }, { status: 503 })
   }
 }

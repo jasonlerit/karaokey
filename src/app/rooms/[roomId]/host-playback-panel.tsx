@@ -56,7 +56,7 @@ type YouTubePlayer = {
 type YouTubePlayerOptions = {
   height: string
   width: string
-  playerVars: { origin: string; playsinline: 1; rel: 0 }
+  playerVars: { origin: string; playsinline: 1 }
   events: {
     onReady: () => void
     onStateChange: (event: { data: number }) => void
@@ -188,7 +188,7 @@ export const HostPlaybackPanel = ({ initialSnapshot }: { initialSnapshot: RoomSn
     playerRef.current = new Player(playerElementId, {
       height: '100%',
       width: '100%',
-      playerVars: { origin: window.location.origin, playsinline: 1, rel: 0 },
+      playerVars: { origin: window.location.origin, playsinline: 1 },
       events: {
         onReady: () => {
           if (apiTimerRef.current) clearTimeout(apiTimerRef.current)

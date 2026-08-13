@@ -3,6 +3,7 @@ export const rateLimitPolicies = {
   roomJoin: { limit: 10, windowMs: 10 * 60_000 },
   youtubeSearch: { limit: 30, windowMs: 60_000 },
   queueMutation: { limit: 20, windowMs: 60_000 },
+  telemetry: { limit: 10, windowMs: 60_000 },
 } as const
 
 export type RateLimitPolicyName = keyof typeof rateLimitPolicies

@@ -36,8 +36,16 @@ export default function PrivacyPage() {
           <p className='mt-2 text-muted-foreground'>
             Song searches are sent to the YouTube Data API, and the host screen loads YouTube&apos;s
             official embedded player. YouTube may receive technical information such as the host
-            device&apos;s IP address and browser details under Google&apos;s own privacy terms.
-            Karaokey does not download or host YouTube videos.
+            device&apos;s IP address and browser details. By using Karaokey&apos;s YouTube features,
+            you agree to the{' '}
+            <a className='underline underline-offset-4' href='https://www.youtube.com/t/terms'>
+              YouTube Terms of Service
+            </a>
+            . Google describes its data practices in the{' '}
+            <a className='underline underline-offset-4' href='https://policies.google.com/privacy'>
+              Google Privacy Policy
+            </a>
+            . Karaokey does not download or host YouTube videos.
           </p>
         </section>
 

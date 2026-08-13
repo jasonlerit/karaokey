@@ -8,7 +8,7 @@ Phase 7 — Operational readiness
 
 ## Current
 
-None
+KARA-014 — Release-candidate validation
 
 ## Last completed
 
@@ -16,11 +16,13 @@ KARA-013 — Privacy, retention, and abuse protection
 
 ## Next
 
-KARA-014 — Accessibility, compatibility, and operational readiness
+Run and record the manual browser, device, accessibility, performance, and YouTube account-owner
+release gates in `docs/release-readiness.md`.
 
 ## Blockers
 
-None
+Release-candidate browser/device access, production-like performance infrastructure, and the
+YouTube API project owner are required to close the remaining release gates.
 
 ## Notes
 
@@ -152,3 +154,16 @@ None
   and host-only queue removal behavior. New tests cover fixed-window limits and the retention
   cutoff.
 - KARA-013 required no database migration.
+- KARA-014 adds privacy-bounded JSON operational events for room creation, successful joins,
+  expiration and retention counts, YouTube request outcomes, queue/playback failures, and realtime
+  reconnects. Events are disabled by default and their schema rejects identifiers and arbitrary
+  fields.
+- Uncached liveness and database-readiness probes support deployment health checks. A global
+  `strict-origin-when-cross-origin` policy preserves the origin required by the YouTube embed while
+  limiting referrer detail.
+- The public notice now links the YouTube Terms of Service and Google Privacy Policy and records
+  consent for YouTube-backed features. The player no longer customizes related-video behavior.
+- `docs/release-readiness.md` defines metric boundaries, service availability, the moving browser
+  matrix, test conditions, privacy limits, and a dated YouTube policy/quota checklist. Gates that
+  require a release environment, real devices, or the API project owner remain explicitly unrun.
+- KARA-014 required no database migration.

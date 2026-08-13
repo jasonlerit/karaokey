@@ -17,6 +17,10 @@ const envSchema = z.object({
     .enum(['true', 'false'])
     .default('false')
     .transform((value) => value === 'true'),
+  OBSERVABILITY_ENABLED: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((value) => value === 'true'),
   YOUTUBE_API_KEY: z.string().trim().min(1).optional(),
   RATE_LIMIT_TRUST_PROXY: z
     .enum(['true', 'false'])

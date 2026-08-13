@@ -77,6 +77,13 @@ export const RoomSyncPanel = ({
       source = new EventSource(`/api/rooms/${initialSnapshot.roomId}/events`)
 
       source.onopen = () => {
+        if (reconnectAttempt.current > 0) {
+          void fetch('/api/telemetry', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ event: 'realtime_reconnected' }),
+          })
+        }
         reconnectAttempt.current = 0
         setConnectionState('connected')
       }
