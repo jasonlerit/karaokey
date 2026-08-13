@@ -14,6 +14,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 - `src/app` contains App Router routes, layouts, and route-specific UI.
 - `src/components/shared` contains reusable application-wide components and providers.
+- `src/components/ui` contains shadcn/ui primitives installed into and owned by this repository.
 - `src/common` contains shared infrastructure and utilities that are not tied to a route.
 - `src/db` contains the Drizzle client and PostgreSQL schema.
 - `src/lib` contains configured library clients and framework integrations.
@@ -36,6 +37,18 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Use `HydrationBoundary` with `dehydrate(getQueryClient())` for server-prefetched queries. Preserve the configured SuperJSON serialization.
 - After successful mutations, invalidate or update every affected query explicitly.
 - Keep React Query Devtools inside the shared provider and do not include its production entry point unless explicitly requested.
+
+## UI and styling
+
+- Use shadcn/ui with the `base-nova` Base UI preset configured in `components.json`.
+- Add shadcn components with `npx shadcn@latest add <component>` and review every generated dependency and file change.
+- Do not overwrite customized files in `src/components/ui` without explicit user authorization.
+- Compose application-specific UI in route or shared component folders instead of adding product behavior to UI primitives.
+- Use the `cn` helper from `src/lib/utils.ts` to merge conditional Tailwind classes.
+- Prefer semantic theme utilities such as `bg-background`, `text-foreground`, and `border-border` over hard-coded colors.
+- Preserve the theme tokens and shadcn imports in `src/app/globals.css` unless intentionally changing the application theme.
+- Use Lucide icons through `lucide-react` and provide accessible labels for icon-only controls.
+- Follow the installed Base UI component APIs; do not assume Radix UI props or composition patterns apply.
 
 ## Environment variables
 
