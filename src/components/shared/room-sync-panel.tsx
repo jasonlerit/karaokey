@@ -12,6 +12,7 @@ import {
   type RoomSyncMessage,
 } from '@/common/room-sync-state'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 export const roomSnapshotKey = (roomId: string) => ['room-snapshot', roomId] as const
 
@@ -20,6 +21,7 @@ type RoomSyncPanelProps = {
   showGuests?: boolean
   viewerGuestId?: string
   canModerate?: boolean
+  display?: 'default' | 'tv'
 }
 
 class QueueRemovalError extends Error {
@@ -42,6 +44,7 @@ export const RoomSyncPanel = ({
   showGuests = false,
   viewerGuestId,
   canModerate = false,
+  display = 'default',
 }: RoomSyncPanelProps) => {
   const queryClient = useQueryClient()
   const [connectionState, setConnectionState] = useState<RoomConnectionState>('connecting')
@@ -107,7 +110,10 @@ export const RoomSyncPanel = ({
 
   return (
     <section
-      className='mt-6 rounded-xl border border-border p-4 text-left'
+      className={cn(
+        'rounded-xl border border-border text-left',
+        display === 'tv' ? 'p-5' : 'mt-6 p-4',
+      )}
       aria-labelledby='shared-queue-title'
     >
       <div className='flex items-center justify-between gap-4'>
@@ -116,13 +122,34 @@ export const RoomSyncPanel = ({
           {snapshot.presence.guestCount} {snapshot.presence.guestCount === 1 ? 'guest' : 'guests'}{' '}
           joined
         </div>
-        <div className='flex items-center gap-2 text-xs text-muted-foreground'>
+        <div
+          role='status'
+          className='flex items-center gap-2 text-xs font-medium text-muted-foreground'
+        >
           <span
-            className={`size-2 rounded-full ${connectionState === 'connected' ? 'bg-green-500' : 'bg-amber-500'}`}
+            className={cn(
+              'size-2 rounded-full',
+              connectionState === 'connected'
+                ? 'bg-green-500'
+                : connectionState === 'connecting'
+                  ? 'bg-muted-foreground'
+                  : 'bg-amber-500',
+            )}
           />
-          {connectionState === 'connected' ? 'Live' : 'Reconnecting…'}
+          {connectionState === 'connected'
+            ? 'Live'
+            : connectionState === 'connecting'
+              ? 'Connecting…'
+              : 'Offline — retrying…'}
         </div>
       </div>
+
+      {connectionState === 'reconnecting' ? (
+        <p role='alert' className='mt-3 text-sm font-medium text-destructive'>
+          Queue updates may be delayed. Check this display&apos;s connection; retrying
+          automatically.
+        </p>
+      ) : null}
 
       {showGuests && snapshot.presence.guests?.length ? (
         <p className='mt-3 text-sm text-muted-foreground'>
@@ -131,16 +158,24 @@ export const RoomSyncPanel = ({
       ) : null}
 
       <div className='mt-4 border-t border-border pt-4'>
-        <h2 id='shared-queue-title' className='flex items-center gap-2 text-base font-semibold'>
+        <h2
+          id='shared-queue-title'
+          className={cn(
+            'flex items-center gap-2 font-semibold',
+            display === 'tv' ? 'text-xl' : 'text-base',
+          )}
+        >
           <ListMusic aria-hidden='true' className='size-4 text-muted-foreground' />
           Shared queue
         </h2>
         {currentItem ? (
-          <div className='mt-3 rounded-lg bg-primary/10 p-3'>
+          <div className='mt-3 rounded-lg border border-primary/20 bg-primary/10 p-3'>
             <p className='flex items-center gap-2 text-xs font-semibold tracking-wide text-primary uppercase'>
               <Music2 aria-hidden='true' className='size-4' /> Now playing
             </p>
-            <p className='mt-1 font-medium'>{currentItem.video.title}</p>
+            <p className={cn('mt-1 font-medium', display === 'tv' && 'text-lg')}>
+              {currentItem.video.title}
+            </p>
             <p className='mt-0.5 text-sm text-muted-foreground'>
               Requested by{' '}
               {currentItem.requester.guestId === viewerGuestId
@@ -155,12 +190,23 @@ export const RoomSyncPanel = ({
         {upcomingItems.length ? (
           <ol className='mt-3 space-y-2'>
             {upcomingItems.map((item) => (
-              <li key={item.id} className='flex min-h-11 items-center gap-3 text-sm'>
-                <span className='w-5 shrink-0 text-right text-muted-foreground'>
+              <li
+                key={item.id}
+                className={cn(
+                  'flex items-center gap-3 text-sm',
+                  display === 'tv' ? 'min-h-14' : 'min-h-11',
+                )}
+              >
+                <span className='w-5 shrink-0 text-right font-medium text-muted-foreground'>
+                  <span className='sr-only'>Position </span>
                   {item.position}.
                 </span>
                 <span className='min-w-0 flex-1'>
-                  <span className='block truncate font-medium'>{item.video.title}</span>
+                  <span
+                    className={cn('block truncate font-medium', display === 'tv' && 'text-base')}
+                  >
+                    {item.video.title}
+                  </span>
                   <span className='block truncate text-xs text-muted-foreground'>
                     {item.requester.guestId === viewerGuestId
                       ? `${item.requester.displayName} (You)`
@@ -178,7 +224,9 @@ export const RoomSyncPanel = ({
                     aria-label={`Remove ${item.video.title} from the queue`}
                   >
                     <Trash2 aria-hidden='true' />
-                    {removal.isPending && removal.variables === item.id ? 'Removing…' : 'Remove'}
+                    <span className={cn(canModerate && display === 'tv' && 'sr-only')}>
+                      {removal.isPending && removal.variables === item.id ? 'Removing…' : 'Remove'}
+                    </span>
                   </Button>
                 ) : null}
               </li>

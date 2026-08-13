@@ -198,6 +198,7 @@ export const HostPlaybackPanel = ({ initialSnapshot }: { initialSnapshot: RoomSn
     (item) => item.id === snapshot.playback.currentItemId && item.status === 'current',
   )
   const hasQueuedItem = snapshot.queue.some((item) => item.status === 'queued')
+  const isRoomActive = snapshot.status === 'active'
 
   useEffect(() => {
     const player = playerRef.current
@@ -283,7 +284,7 @@ export const HostPlaybackPanel = ({ initialSnapshot }: { initialSnapshot: RoomSn
       : 'Playback could not be updated. Check the connection and try again.'
 
   return (
-    <section className='mt-8' aria-labelledby='player-title'>
+    <section aria-labelledby='player-title'>
       <Script
         src='https://www.youtube.com/iframe_api'
         strategy='afterInteractive'
@@ -291,7 +292,7 @@ export const HostPlaybackPanel = ({ initialSnapshot }: { initialSnapshot: RoomSn
       />
       <div className='flex flex-wrap items-end justify-between gap-3'>
         <div>
-          <h2 id='player-title' className='text-xl font-semibold'>
+          <h2 id='player-title' className='text-2xl font-semibold'>
             Karaoke player
           </h2>
           <p className='mt-1 text-sm text-muted-foreground'>
@@ -301,24 +302,51 @@ export const HostPlaybackPanel = ({ initialSnapshot }: { initialSnapshot: RoomSn
           </p>
         </div>
         <p className='text-xs font-medium tracking-wide text-muted-foreground uppercase'>
-          {snapshot.playback.state}
+          {isRoomActive ? snapshot.playback.state : snapshot.status}
         </p>
       </div>
 
       <div className='relative mt-4 aspect-video min-h-50 overflow-hidden rounded-2xl bg-black'>
         <div id={playerElementId} className='size-full' />
-        {!currentItem ? (
+        {!currentItem || !isPlayerReady ? (
           <div className='absolute inset-0 flex items-center justify-center bg-black text-center text-white'>
             <div className='p-6'>
-              <Play aria-hidden='true' className='mx-auto size-10 opacity-70' />
-              <p className='mt-3 font-medium'>No song is playing</p>
-              <p className='mt-1 text-sm text-white/70'>Queued songs will play on this screen.</p>
+              {currentItem && !isPlayerReady ? (
+                <LoaderCircle
+                  aria-hidden='true'
+                  className='mx-auto size-10 animate-spin opacity-70'
+                />
+              ) : (
+                <Play aria-hidden='true' className='mx-auto size-10 opacity-70' />
+              )}
+              <p className='mt-3 text-lg font-medium'>
+                {snapshot.status === 'ended'
+                  ? 'Room ended'
+                  : snapshot.status === 'expired'
+                    ? 'Room expired'
+                    : currentItem && !isPlayerReady
+                      ? 'Loading player…'
+                      : hasQueuedItem
+                        ? 'Ready for the first singer'
+                        : 'Waiting for song requests'}
+              </p>
+              <p className='mt-1 text-sm text-white/70'>
+                {snapshot.status === 'ended'
+                  ? 'Playback is stopped and the room is closed.'
+                  : snapshot.status === 'expired'
+                    ? 'Create a new room to keep singing.'
+                    : currentItem && !isPlayerReady
+                      ? 'Connecting to the YouTube player.'
+                      : hasQueuedItem
+                        ? 'Use Start Playback when everyone is ready.'
+                        : 'Guests can scan the room QR code to add songs.'}
+              </p>
             </div>
           </div>
         ) : null}
       </div>
 
-      {(hasQueuedItem && !currentItem) || (currentItem && needsInteraction) ? (
+      {isRoomActive && ((hasQueuedItem && !currentItem) || (currentItem && needsInteraction)) ? (
         <Button
           type='button'
           size='lg'
@@ -340,7 +368,7 @@ export const HostPlaybackPanel = ({ initialSnapshot }: { initialSnapshot: RoomSn
           type='button'
           variant='outline'
           className='h-11'
-          disabled={!currentItem || !isPlayerReady || command.isPending}
+          disabled={!isRoomActive || !currentItem || !isPlayerReady || command.isPending}
           onClick={snapshot.playback.state === 'playing' ? pause : startOrPlay}
         >
           {snapshot.playback.state === 'playing' ? (
@@ -354,7 +382,7 @@ export const HostPlaybackPanel = ({ initialSnapshot }: { initialSnapshot: RoomSn
           type='button'
           variant='outline'
           className='h-11'
-          disabled={!currentItem || !isPlayerReady || command.isPending}
+          disabled={!isRoomActive || !currentItem || !isPlayerReady || command.isPending}
           onClick={restart}
         >
           <RotateCcw aria-hidden='true' /> Restart
@@ -363,7 +391,7 @@ export const HostPlaybackPanel = ({ initialSnapshot }: { initialSnapshot: RoomSn
           type='button'
           variant='outline'
           className='h-11'
-          disabled={!currentItem || command.isPending}
+          disabled={!isRoomActive || !currentItem || command.isPending}
           onClick={skip}
         >
           <SkipForward aria-hidden='true' /> Skip

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Clock3, DoorOpen, KeyRound, Music2 } from 'lucide-react'
+import { DoorOpen, Music2 } from 'lucide-react'
 import { z } from 'zod'
 
 import { endRoomAction } from '@/app/actions'
@@ -10,7 +10,7 @@ import { getRoomSnapshot } from '@/common/room-sync'
 import { getHostRoom, getRoomByJoinToken, type RoomAccessResult } from '@/common/rooms'
 import { RoomSyncPanel } from '@/components/shared/room-sync-panel'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 
 import { EndRoomControl } from './end-room-control'
 import { HostPlaybackPanel } from './host-playback-panel'
@@ -79,21 +79,21 @@ export default async function HostRoomPage({ params }: { params: Promise<{ roomI
   const endAction = endRoomAction.bind(null, result.room.id)
 
   return (
-    <main className='flex flex-1 items-center justify-center px-6 py-12'>
-      <Card className='w-full max-w-6xl gap-0 py-0 shadow-sm'>
-        <CardContent className='p-8 sm:p-12'>
-          <div className='flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between'>
+    <main className='flex flex-1 items-start justify-center px-3 py-3 sm:px-5 sm:py-5'>
+      <Card className='w-full max-w-400 gap-0 py-0 shadow-sm'>
+        <CardContent className='p-4 sm:p-6'>
+          <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
             <div>
-              <div className='mb-4 flex items-center gap-2 text-sm font-medium text-primary'>
+              <div className='mb-2 flex items-center gap-2 text-sm font-medium text-primary'>
                 <Music2 aria-hidden='true' className='size-4' />
                 Host room
               </div>
               <h1 className='text-3xl font-semibold tracking-tight'>Room {result.room.roomCode}</h1>
-              <p className='mt-3 max-w-md leading-6 text-muted-foreground'>
-                Your room is active. Keep this tab open while guests join and add songs.
+              <p className='mt-1 text-sm text-muted-foreground'>
+                Keep this display open while guests join, request songs, and sing.
               </p>
             </div>
-            <div className='rounded-2xl bg-muted px-6 py-4 text-center'>
+            <div className='rounded-xl bg-muted px-5 py-3 text-center'>
               <p className='text-xs font-medium tracking-widest text-muted-foreground uppercase'>
                 Room code
               </p>
@@ -101,41 +101,30 @@ export default async function HostRoomPage({ params }: { params: Promise<{ roomI
             </div>
           </div>
 
-          <div className='mt-8 grid gap-4 border-t border-border pt-8 sm:grid-cols-2'>
-            <Card size='sm' className='bg-muted/60 ring-0'>
-              <CardContent>
-                <KeyRound aria-hidden='true' className='mb-3 size-5 text-muted-foreground' />
-                <CardTitle>Host access is saved</CardTitle>
-                <CardDescription className='mt-1 leading-5'>
-                  Reopen this room in the same browser to restore these controls.
-                </CardDescription>
-              </CardContent>
-            </Card>
-            <Card size='sm' className='bg-muted/60 ring-0'>
-              <CardContent>
-                <Clock3 aria-hidden='true' className='mb-3 size-5 text-muted-foreground' />
-                <CardTitle>Temporary by design</CardTitle>
-                <CardDescription className='mt-1 leading-5'>
-                  Inactive rooms expire after six hours and always close within twelve hours.
-                </CardDescription>
-              </CardContent>
-            </Card>
-          </div>
+          <div className='mt-5 grid gap-5 border-t border-border pt-5 xl:grid-cols-[minmax(0,7fr)_minmax(20rem,3fr)] xl:items-start'>
+            <HostPlaybackPanel initialSnapshot={initialSnapshot} />
 
-          <HostPlaybackPanel initialSnapshot={initialSnapshot} />
+            <aside className='space-y-4' aria-label='Room queue and host actions'>
+              <RoomSyncPanel
+                initialSnapshot={initialSnapshot}
+                showGuests
+                canModerate
+                display='tv'
+              />
 
-          {guestUrl && qrCodeDataUrl ? (
-            <RoomJoiningDisplay
-              guestUrl={guestUrl}
-              qrCodeDataUrl={qrCodeDataUrl}
-              roomCode={result.room.roomCode}
-            />
-          ) : null}
+              {guestUrl && qrCodeDataUrl ? (
+                <RoomJoiningDisplay
+                  guestUrl={guestUrl}
+                  qrCodeDataUrl={qrCodeDataUrl}
+                  roomCode={result.room.roomCode}
+                  initialSnapshot={initialSnapshot}
+                />
+              ) : null}
 
-          <RoomSyncPanel initialSnapshot={initialSnapshot} showGuests canModerate />
-
-          <div className='mt-8 flex justify-end'>
-            <EndRoomControl action={endAction} />
+              <div className='flex justify-end'>
+                <EndRoomControl action={endAction} />
+              </div>
+            </aside>
           </div>
         </CardContent>
       </Card>

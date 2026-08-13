@@ -4,7 +4,7 @@ Last updated: 2026-08-13
 
 ## Current phase
 
-Phase 4 — Synchronized TV experience
+Phase 5 — Failure recovery
 
 ## Current
 
@@ -12,11 +12,11 @@ None
 
 ## Last completed
 
-KARA-010 — Host queue moderation and room control
+KARA-011 — Synchronized TV room experience
 
 ## Next
 
-KARA-011 — Synchronized TV room experience
+KARA-012 — Playback and integration failure recovery
 
 ## Blockers
 
@@ -105,3 +105,16 @@ None
 - Realtime snapshots include the latest terminal queue activity. Connected clients receive a
   visible, assistive status message when a song is removed, skipped, completed, or fails.
 - KARA-010 required no database migration.
+- KARA-011 uses an approximately 70/30 landscape grid at the 1280-pixel TV breakpoint, with the
+  official player and controls on the left and the authoritative current/upcoming queue on the
+  right. Below that breakpoint, the same content stacks without losing keyboard or touch access.
+- The queue uses explicit Now Playing and position labels, requester names, larger TV typography,
+  and touch-sized moderation controls. All upcoming items remain visible, including at least the
+  next three when present and space permits.
+- Joining information is contained in the queue sidebar rather than overlaying the player. It is
+  visible by default while idle, collapses automatically when playback begins unless the host has
+  explicitly overridden it, and remains available through a labeled toggle.
+- The player presents distinct waiting, ready, loading, ended, and expired messages. The live queue
+  distinguishes connecting, live, and offline/retrying states in text and gives an actionable
+  connection warning without relying on indicator color.
+- KARA-011 required no database migration.
