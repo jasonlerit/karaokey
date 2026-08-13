@@ -7,6 +7,7 @@ import { parseYouTubeDuration } from '@/common/youtube-duration'
 
 const YOUTUBE_API_BASE_URL = 'https://www.googleapis.com/youtube/v3'
 const SEARCH_RESULT_LIMIT = 10
+const YOUTUBE_REQUEST_TIMEOUT_MS = 10_000
 
 export const youtubeSearchQuerySchema = z
   .string()
@@ -86,7 +87,10 @@ const requestYouTube = async (path: string, parameters: Record<string, string>) 
 
   let response: Response
   try {
-    response = await fetch(url, { cache: 'no-store' })
+    response = await fetch(url, {
+      cache: 'no-store',
+      signal: AbortSignal.timeout(YOUTUBE_REQUEST_TIMEOUT_MS),
+    })
   } catch {
     throw new YouTubeApiError('unavailable')
   }

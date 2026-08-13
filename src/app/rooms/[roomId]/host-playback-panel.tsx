@@ -8,6 +8,7 @@ import {
   LoaderCircle,
   Pause,
   Play,
+  RefreshCw,
   RotateCcw,
   SkipForward,
   Volume2,
@@ -15,6 +16,11 @@ import {
 import { z } from 'zod'
 
 import type { RoomSnapshot } from '@/common/room-sync-state'
+import {
+  getPlayerRecoveryAction,
+  PLAYER_API_TIMEOUT_MS,
+  PLAYER_START_TIMEOUT_MS,
+} from '@/common/playback-recovery'
 import { getYouTubePlayerAction } from '@/common/youtube-player-state'
 import { roomSnapshotKey } from '@/components/shared/room-sync-panel'
 import { Button } from '@/components/ui/button'
@@ -54,7 +60,7 @@ type YouTubePlayerOptions = {
   events: {
     onReady: () => void
     onStateChange: (event: { data: number }) => void
-    onError: () => void
+    onError: (event: { data: number }) => void
     onAutoplayBlocked: () => void
   }
 }
@@ -97,8 +103,14 @@ export const HostPlaybackPanel = ({ initialSnapshot }: { initialSnapshot: RoomSn
   const lastReportedStateRef = useRef<string | null>(null)
   const mutationRef = useRef<(command: PlaybackCommand) => void>(() => undefined)
   const volumeRef = useRef(70)
+  const apiTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const startupTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const recoveryRetryCountRef = useRef(0)
+  const videoRequestRef = useRef<{ videoId: string; startSeconds: number } | null>(null)
   const [isPlayerReady, setIsPlayerReady] = useState(false)
   const [needsInteraction, setNeedsInteraction] = useState(false)
+  const [recoveryMessage, setRecoveryMessage] = useState<string>()
+  const [playerApiUnavailable, setPlayerApiUnavailable] = useState(false)
   const [volume, setVolume] = useState(70)
   const { data: snapshot } = useQuery({
     queryKey: roomSnapshotKey(initialSnapshot.roomId),
@@ -144,6 +156,32 @@ export const HostPlaybackPanel = ({ initialSnapshot }: { initialSnapshot: RoomSn
     })
   }, [])
 
+  const clearStartupTimer = useCallback(() => {
+    if (startupTimerRef.current) clearTimeout(startupTimerRef.current)
+    startupTimerRef.current = null
+  }, [])
+
+  const recoverLoadedItem = useCallback(() => {
+    clearStartupTimer()
+    const itemId = loadedItemIdRef.current
+    const videoRequest = videoRequestRef.current
+    if (!itemId || !videoRequest || advancedItemIdRef.current === itemId) return
+
+    if (getPlayerRecoveryAction(recoveryRetryCountRef.current) === 'retry') {
+      recoveryRetryCountRef.current += 1
+      setRecoveryMessage('The video did not start. Retrying once…')
+      playerRef.current?.loadVideoById(videoRequest)
+      startupTimerRef.current = setTimeout(() => {
+        setRecoveryMessage('This video could not be played. Moving to the next request.')
+        advanceLoadedItem('failed')
+      }, PLAYER_START_TIMEOUT_MS)
+      return
+    }
+
+    setRecoveryMessage('This video could not be played. Moving to the next request.')
+    advanceLoadedItem('failed')
+  }, [advanceLoadedItem, clearStartupTimer])
+
   const initializePlayer = useCallback(() => {
     const Player = window.YT?.Player
     if (playerRef.current || typeof Player !== 'function') return
@@ -153,27 +191,39 @@ export const HostPlaybackPanel = ({ initialSnapshot }: { initialSnapshot: RoomSn
       playerVars: { origin: window.location.origin, playsinline: 1, rel: 0 },
       events: {
         onReady: () => {
+          if (apiTimerRef.current) clearTimeout(apiTimerRef.current)
+          apiTimerRef.current = null
+          setPlayerApiUnavailable(false)
           playerRef.current?.setVolume(volumeRef.current)
           setIsPlayerReady(true)
         },
         onStateChange: ({ data }) => {
           const action = getYouTubePlayerAction(data)
           if (action === 'playing') {
+            clearStartupTimer()
+            recoveryRetryCountRef.current = 0
+            setRecoveryMessage(undefined)
             setNeedsInteraction(false)
             reportPlayerState('playing')
           } else if (action === 'paused') {
+            clearStartupTimer()
             setNeedsInteraction(false)
             reportPlayerState('paused')
           } else if (action === 'completed') {
+            clearStartupTimer()
             setNeedsInteraction(false)
             advanceLoadedItem('completed')
           }
         },
-        onError: () => advanceLoadedItem('failed'),
-        onAutoplayBlocked: () => setNeedsInteraction(true),
+        onError: () => recoverLoadedItem(),
+        onAutoplayBlocked: () => {
+          clearStartupTimer()
+          setRecoveryMessage('Your browser blocked autoplay. Start playback when ready.')
+          setNeedsInteraction(true)
+        },
       },
     })
-  }, [advanceLoadedItem, playerElementId, reportPlayerState])
+  }, [advanceLoadedItem, clearStartupTimer, playerElementId, recoverLoadedItem, reportPlayerState])
 
   useEffect(() => {
     const previousReadyHandler = window.onYouTubeIframeAPIReady
@@ -183,16 +233,19 @@ export const HostPlaybackPanel = ({ initialSnapshot }: { initialSnapshot: RoomSn
     }
     window.onYouTubeIframeAPIReady = readyHandler
     const initializationTimer = window.setTimeout(initializePlayer, 0)
+    apiTimerRef.current = setTimeout(() => setPlayerApiUnavailable(true), PLAYER_API_TIMEOUT_MS)
 
     return () => {
       window.clearTimeout(initializationTimer)
+      if (apiTimerRef.current) clearTimeout(apiTimerRef.current)
+      clearStartupTimer()
       if (window.onYouTubeIframeAPIReady === readyHandler) {
         window.onYouTubeIframeAPIReady = previousReadyHandler
       }
       playerRef.current?.destroy()
       playerRef.current = null
     }
-  }, [initializePlayer])
+  }, [clearStartupTimer, initializePlayer])
 
   const currentItem = snapshot.queue.find(
     (item) => item.id === snapshot.playback.currentItemId && item.status === 'current',
@@ -207,6 +260,8 @@ export const HostPlaybackPanel = ({ initialSnapshot }: { initialSnapshot: RoomSn
     if (snapshot.status !== 'active' || !currentItem) {
       if (loadedItemIdRef.current) player.stopVideo()
       loadedItemIdRef.current = null
+      videoRequestRef.current = null
+      clearStartupTimer()
       return
     }
 
@@ -214,14 +269,18 @@ export const HostPlaybackPanel = ({ initialSnapshot }: { initialSnapshot: RoomSn
       loadedItemIdRef.current = currentItem.id
       advancedItemIdRef.current = null
       lastReportedStateRef.current = null
+      recoveryRetryCountRef.current = 0
+      setRecoveryMessage(undefined)
       const videoRequest = {
         videoId: currentItem.video.videoId,
         startSeconds: snapshot.playback.positionSeconds,
       }
+      videoRequestRef.current = videoRequest
       if (snapshot.playback.state === 'paused') {
         player.cueVideoById(videoRequest)
       } else {
         player.loadVideoById(videoRequest)
+        startupTimerRef.current = setTimeout(recoverLoadedItem, PLAYER_START_TIMEOUT_MS)
       }
       return
     }
@@ -233,7 +292,9 @@ export const HostPlaybackPanel = ({ initialSnapshot }: { initialSnapshot: RoomSn
     }
   }, [
     currentItem,
+    clearStartupTimer,
     isPlayerReady,
+    recoverLoadedItem,
     snapshot.playback.positionSeconds,
     snapshot.playback.state,
     snapshot.status,
@@ -245,6 +306,8 @@ export const HostPlaybackPanel = ({ initialSnapshot }: { initialSnapshot: RoomSn
       command.mutate({ action: 'start' })
       return
     }
+    clearStartupTimer()
+    startupTimerRef.current = setTimeout(recoverLoadedItem, PLAYER_START_TIMEOUT_MS)
     playerRef.current?.playVideo()
   }
 
@@ -289,6 +352,7 @@ export const HostPlaybackPanel = ({ initialSnapshot }: { initialSnapshot: RoomSn
         src='https://www.youtube.com/iframe_api'
         strategy='afterInteractive'
         onReady={initializePlayer}
+        onError={() => setPlayerApiUnavailable(true)}
       />
       <div className='flex flex-wrap items-end justify-between gap-3'>
         <div>
@@ -311,7 +375,7 @@ export const HostPlaybackPanel = ({ initialSnapshot }: { initialSnapshot: RoomSn
         {!currentItem || !isPlayerReady ? (
           <div className='absolute inset-0 flex items-center justify-center bg-black text-center text-white'>
             <div className='p-6'>
-              {currentItem && !isPlayerReady ? (
+              {currentItem && !isPlayerReady && !playerApiUnavailable ? (
                 <LoaderCircle
                   aria-hidden='true'
                   className='mx-auto size-10 animate-spin opacity-70'
@@ -324,27 +388,42 @@ export const HostPlaybackPanel = ({ initialSnapshot }: { initialSnapshot: RoomSn
                   ? 'Room ended'
                   : snapshot.status === 'expired'
                     ? 'Room expired'
-                    : currentItem && !isPlayerReady
-                      ? 'Loading player…'
-                      : hasQueuedItem
-                        ? 'Ready for the first singer'
-                        : 'Waiting for song requests'}
+                    : playerApiUnavailable
+                      ? 'YouTube player unavailable'
+                      : currentItem && !isPlayerReady
+                        ? 'Loading player…'
+                        : hasQueuedItem
+                          ? 'Ready for the first singer'
+                          : 'Waiting for song requests'}
               </p>
               <p className='mt-1 text-sm text-white/70'>
                 {snapshot.status === 'ended'
                   ? 'Playback is stopped and the room is closed.'
                   : snapshot.status === 'expired'
                     ? 'Create a new room to keep singing.'
-                    : currentItem && !isPlayerReady
-                      ? 'Connecting to the YouTube player.'
-                      : hasQueuedItem
-                        ? 'Use Start Playback when everyone is ready.'
-                        : 'Guests can scan the room QR code to add songs.'}
+                    : playerApiUnavailable
+                      ? 'Check the connection, then retry the player.'
+                      : currentItem && !isPlayerReady
+                        ? 'Connecting to the YouTube player.'
+                        : hasQueuedItem
+                          ? 'Use Start Playback when everyone is ready.'
+                          : 'Guests can scan the room QR code to add songs.'}
               </p>
             </div>
           </div>
         ) : null}
       </div>
+
+      {playerApiUnavailable ? (
+        <Button
+          type='button'
+          variant='outline'
+          className='mt-4 h-12 w-full'
+          onClick={() => window.location.reload()}
+        >
+          <RefreshCw aria-hidden='true' /> Retry YouTube player
+        </Button>
+      ) : null}
 
       {isRoomActive && ((hasQueuedItem && !currentItem) || (currentItem && needsInteraction)) ? (
         <Button
@@ -420,6 +499,11 @@ export const HostPlaybackPanel = ({ initialSnapshot }: { initialSnapshot: RoomSn
       {command.isError ? (
         <p role='alert' className='mt-3 flex items-center gap-2 text-sm text-destructive'>
           <AlertCircle aria-hidden='true' className='size-4' /> {errorMessage}
+        </p>
+      ) : null}
+      {recoveryMessage ? (
+        <p role='status' className='mt-3 flex items-center gap-2 text-sm text-muted-foreground'>
+          <AlertCircle aria-hidden='true' className='size-4' /> {recoveryMessage}
         </p>
       ) : null}
       {command.isSuccess ? (

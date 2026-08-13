@@ -4,7 +4,7 @@ Last updated: 2026-08-13
 
 ## Current phase
 
-Phase 5 — Failure recovery
+Phase 6 — Privacy and abuse protection
 
 ## Current
 
@@ -12,11 +12,11 @@ None
 
 ## Last completed
 
-KARA-011 — Synchronized TV room experience
+KARA-012 — Playback and integration failure recovery
 
 ## Next
 
-KARA-012 — Playback and integration failure recovery
+KARA-013 — Privacy, retention, and abuse protection
 
 ## Blockers
 
@@ -118,3 +118,19 @@ None
   distinguishes connecting, live, and offline/retrying states in text and gives an actionable
   connection warning without relying on indicator color.
 - KARA-011 required no database migration.
+- KARA-012 bounds official YouTube Data API requests at ten seconds. Search retries one general
+  availability failure automatically, while quota, configuration, invalid-query, unavailable-video,
+  and empty-result states remain distinct and actionable.
+- The host gives the YouTube IFrame API fifteen seconds to initialize before presenting a stable
+  unavailable state with an explicit retry action. Persistent provider unavailability does not
+  mutate or discard the authoritative queue.
+- Each loaded current item has a fifteen-second startup deadline and one automatic reload. A
+  second timeout or player error marks only that expected item failed and atomically promotes the
+  next valid request. Autoplay blocking pauses recovery and asks for host interaction instead.
+- Per-item retry and advancement guards combine with the expected-current-item server contract,
+  so duplicate errors, late timeouts, and signals from older videos cannot advance newer items.
+  Host and guest snapshots announce failed items through the existing recent-activity message.
+- Realtime reconnects remain visibly bounded at fifteen seconds. Every new event stream begins
+  with a fresh authoritative snapshot, and monotonic version checks reject stale or duplicate data
+  without replaying client mutations.
+- KARA-012 required no database migration.

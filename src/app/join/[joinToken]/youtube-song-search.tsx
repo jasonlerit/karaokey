@@ -140,7 +140,8 @@ export const YouTubeSongSearch = ({ roomId }: { roomId: string }) => {
     queryKey: ['youtube-search', roomId, request?.query, request?.pageToken],
     queryFn: () => searchVideos(roomId, request!),
     enabled: request !== undefined,
-    retry: false,
+    retry: (failureCount, error) =>
+      failureCount < 1 && error instanceof SearchError && error.code === 'unavailable',
     staleTime: 0,
   })
   const selection = useMutation({
