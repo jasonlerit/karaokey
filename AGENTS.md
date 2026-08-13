@@ -82,7 +82,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Verification
 
-- Run `npm run format:check`, `npm run lint`, and `npx tsc --noEmit` after code changes.
+- Run `npm run check` after code changes; it verifies formatting, ESLint, and TypeScript.
+- Before creating a commit, run `npm run check` and only commit when it passes. If it cannot run or fails for an unrelated reason, report that clearly before committing.
 - Run relevant tests when they exist or when a change adds them.
 - Run `npm run db:generate` after schema changes and review the generated SQL.
 - Report checks that could not be run and explain why.
