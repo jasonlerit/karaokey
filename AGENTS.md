@@ -61,7 +61,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 - Use Drizzle ORM with PostgreSQL.
 - Use camelCase names in TypeScript and snake_case identifiers in PostgreSQL.
-- Define schema objects under `src/db` and export them so Drizzle Kit can discover them.
+- Define each schema object in its own `src/db/schemas/*.schema.ts` file and export it from `src/db/schemas/index.ts`.
 - Generate migrations with `npm run db:generate` and commit the generated migration files.
 - Do not apply migrations with `db:migrate` or `db:push` without explicit user authorization.
 
