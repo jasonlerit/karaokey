@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { and, eq, gt, lte, or } from 'drizzle-orm'
+import { and, eq, gt, lte, or, sql } from 'drizzle-orm'
 
 import {
   generateRoomCode,
@@ -21,6 +21,7 @@ export type RoomView = Pick<
   | 'roomCode'
   | 'status'
   | 'playbackState'
+  | 'version'
   | 'createdAt'
   | 'lastActiveAt'
   | 'expiresAt'
@@ -44,6 +45,7 @@ const toRoomView = (room: Room): RoomView => ({
   roomCode: room.roomCode,
   status: room.status,
   playbackState: room.playbackState,
+  version: room.version,
   createdAt: room.createdAt,
   lastActiveAt: room.lastActiveAt,
   expiresAt: room.expiresAt,
@@ -62,7 +64,12 @@ const isUniqueViolation = (error: unknown): boolean => {
 export const expireRooms = async (now = new Date()) => {
   return db
     .update(rooms)
-    .set({ status: 'expired', playbackState: 'idle', expiredAt: now })
+    .set({
+      status: 'expired',
+      playbackState: 'idle',
+      expiredAt: now,
+      version: sql`${rooms.version} + 1`,
+    })
     .where(
       and(
         eq(rooms.status, 'active'),
@@ -156,7 +163,12 @@ export const endRoom = async (
 
   const [endedRoom] = await db
     .update(rooms)
-    .set({ status: 'ended', playbackState: 'idle', endedAt: now })
+    .set({
+      status: 'ended',
+      playbackState: 'idle',
+      endedAt: now,
+      version: sql`${rooms.version} + 1`,
+    })
     .where(
       and(
         eq(rooms.id, roomId),

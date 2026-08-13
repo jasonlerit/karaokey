@@ -4,7 +4,9 @@ import { z } from 'zod'
 
 import { getGuestRoomCredential } from '@/common/guest-session-cookie'
 import { restoreGuestSession } from '@/common/guest-sessions'
+import { getRoomSnapshot } from '@/common/room-sync'
 import { getRoomByJoinToken, type RoomAccessResult } from '@/common/rooms'
+import { RoomSyncPanel } from '@/components/shared/room-sync-panel'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 
@@ -81,6 +83,9 @@ export default async function JoinRoomPage({ params }: { params: Promise<{ joinT
     : ({ code: 'invalid_session' } as const)
 
   if (restored.code === 'ok') {
+    const initialSnapshot = await getRoomSnapshot(roomAccess.room.id, 'guest')
+    if (!initialSnapshot) return <RoomMessage result={{ code: 'not_found' }} />
+
     return (
       <main className='flex flex-1 items-center justify-center px-6 py-16'>
         <Card className='w-full max-w-md text-center shadow-sm'>
@@ -96,6 +101,7 @@ export default async function JoinRoomPage({ params }: { params: Promise<{ joinT
               Your guest session is active. Song search and the shared queue arrive in the next
               phase.
             </p>
+            <RoomSyncPanel initialSnapshot={initialSnapshot} />
           </CardContent>
         </Card>
       </main>

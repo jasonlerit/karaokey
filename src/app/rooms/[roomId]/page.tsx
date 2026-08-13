@@ -5,7 +5,9 @@ import { z } from 'zod'
 import { endRoomAction } from '@/app/actions'
 import { env } from '@/common/env'
 import { getHostCredential, getHostJoinToken } from '@/common/host-room-session'
+import { getRoomSnapshot } from '@/common/room-sync'
 import { getHostRoom, getRoomByJoinToken, type RoomAccessResult } from '@/common/rooms'
+import { RoomSyncPanel } from '@/components/shared/room-sync-panel'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card'
 
@@ -60,6 +62,9 @@ export default async function HostRoomPage({ params }: { params: Promise<{ roomI
   const result = await getHostRoom(parsedRoomId.data, credential)
 
   if (result.code !== 'ok') return <RoomMessage result={result} />
+
+  const initialSnapshot = await getRoomSnapshot(result.room.id, 'host')
+  if (!initialSnapshot) return <RoomMessage result={{ code: 'not_found' }} />
 
   const joinToken = await getHostJoinToken(parsedRoomId.data)
   const joinAccess = joinToken ? await getRoomByJoinToken(joinToken) : undefined
@@ -121,6 +126,8 @@ export default async function HostRoomPage({ params }: { params: Promise<{ roomI
               </CardContent>
             </Card>
           ) : null}
+
+          <RoomSyncPanel initialSnapshot={initialSnapshot} showGuests />
 
           <div className='mt-8 flex justify-end'>
             <EndRoomControl action={endAction} />

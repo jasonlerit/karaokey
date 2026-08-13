@@ -17,6 +17,7 @@ export const rooms = pgTable(
     status: varchar({ length: 16 }).$type<RoomStatus>().default('active').notNull(),
     currentQueueItemId: uuid(),
     playbackState: varchar({ length: 16 }).$type<PlaybackState>().default('idle').notNull(),
+    version: integer().default(1).notNull(),
     lastKnownPlaybackPositionSeconds: integer().default(0).notNull(),
     createdAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
     lastActiveAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
@@ -34,6 +35,7 @@ export const rooms = pgTable(
       sql`${table.playbackState} in ('idle', 'playing', 'paused')`,
     ),
     check('rooms_playback_position_check', sql`${table.lastKnownPlaybackPositionSeconds} >= 0`),
+    check('rooms_version_check', sql`${table.version} > 0`),
     check('rooms_expiration_order_check', sql`${table.expiresAt} <= ${table.absoluteExpiresAt}`),
   ],
 )

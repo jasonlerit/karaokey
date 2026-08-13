@@ -2,11 +2,12 @@ import 'server-only'
 
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto'
 
-import { and, eq } from 'drizzle-orm'
+import { and, eq, sql } from 'drizzle-orm'
 
 import { displayNameSchema } from '@/common/display-name'
 import { db } from '@/db'
 import { guestSessions, type GuestSession } from '@/db/schemas'
+import { rooms } from '@/db/schemas'
 
 import { getRoomByJoinToken } from './rooms'
 
@@ -62,20 +63,51 @@ export const createGuestSession = async (
   if (roomAccess.code !== 'ok') return toGuestRoomError(roomAccess.code)
 
   const secret = randomBytes(CREDENTIAL_BYTES).toString('base64url')
-  const [guest] = await db
-    .insert(guestSessions)
-    .values({
-      roomId: roomAccess.room.id,
-      credentialHash: hashCredential(secret),
-      displayName: parsedName.data,
-      createdAt: now,
-      lastSeenAt: now,
-    })
-    .returning()
+  const guest = await db.transaction(async (tx) => {
+    const [created] = await tx
+      .insert(guestSessions)
+      .values({
+        roomId: roomAccess.room.id,
+        credentialHash: hashCredential(secret),
+        displayName: parsedName.data,
+        createdAt: now,
+        lastSeenAt: now,
+      })
+      .returning()
+
+    await tx
+      .update(rooms)
+      .set({ version: sql`${rooms.version} + 1`, lastActiveAt: now })
+      .where(eq(rooms.id, roomAccess.room.id))
+
+    return created
+  })
 
   if (!guest) throw new Error('Guest session creation did not return a session')
 
   return { code: 'ok', guest: toView(guest), credential: `${guest.id}.${secret}` }
+}
+
+export const getGuestSessionByRoomId = async (
+  roomId: string,
+  credential: string | undefined,
+): Promise<GuestSessionResult> => {
+  if (!credential) return { code: 'invalid_session' }
+
+  const separator = credential.indexOf('.')
+  if (separator < 1) return { code: 'invalid_session' }
+
+  const sessionId = credential.slice(0, separator)
+  const secret = credential.slice(separator + 1)
+  const guest = await db.query.guestSessions.findFirst({
+    where: and(eq(guestSessions.id, sessionId), eq(guestSessions.roomId, roomId)),
+  })
+
+  if (!guest || !credentialsMatch(secret, guest.credentialHash)) {
+    return { code: 'invalid_session' }
+  }
+
+  return { code: 'ok', guest: toView(guest) }
 }
 
 export const restoreGuestSession = async (
