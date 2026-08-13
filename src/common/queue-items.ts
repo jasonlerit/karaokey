@@ -1,8 +1,9 @@
 import 'server-only'
 
-import { and, asc, count, eq, inArray, max, sql } from 'drizzle-orm'
+import { and, asc, count, desc, eq, inArray, isNotNull, max, sql } from 'drizzle-orm'
 
 import {
+  getHostQueueRemovalPolicyRejection,
   getQueuePolicyRejection,
   getQueueRemovalPolicyRejection,
   type QueuePolicyCode,
@@ -36,7 +37,8 @@ export type AddQueueItemResult =
     }
 
 export type RemoveQueueItemResult =
-  { code: 'ok'; item: QueueItemView } | { code: 'not_found' | 'not_owner' | 'not_queued' }
+  | { code: 'ok'; item: QueueItemView }
+  | { code: 'not_found' | 'not_owner' | 'not_queued' | 'room_ended' | 'room_expired' }
 
 const toQueueItemView = (item: QueueItem, position: number): QueueItemView => ({
   id: item.id,
@@ -189,7 +191,7 @@ export const getQueueItemByIdempotencyKey = async (
   return item ? toQueueItemView(item, item.positionAtAddition) : undefined
 }
 
-export const removeQueueItem = async ({
+const removeQueueItemForActor = async ({
   roomId,
   itemId,
   guestId,
@@ -197,16 +199,16 @@ export const removeQueueItem = async ({
 }: {
   roomId: string
   itemId: string
-  guestId: string
+  guestId?: string
   now?: Date
 }): Promise<RemoveQueueItemResult> =>
   db.transaction(async (tx) => {
-    const [room] = await tx
-      .select({ id: rooms.id })
-      .from(rooms)
-      .where(eq(rooms.id, roomId))
-      .for('update')
+    const [room] = await tx.select().from(rooms).where(eq(rooms.id, roomId)).for('update')
     if (!room) return { code: 'not_found' }
+    if (room.status === 'ended') return { code: 'room_ended' }
+    if (room.status === 'expired' || room.expiresAt <= now || room.absoluteExpiresAt <= now) {
+      return { code: 'room_expired' }
+    }
 
     const [item] = await tx
       .select()
@@ -216,11 +218,13 @@ export const removeQueueItem = async ({
 
     if (!item) return { code: 'not_found' }
 
-    const rejection = getQueueRemovalPolicyRejection({
-      requesterGuestId: item.requesterGuestId,
-      guestId,
-      status: item.status,
-    })
+    const rejection = guestId
+      ? getQueueRemovalPolicyRejection({
+          requesterGuestId: item.requesterGuestId,
+          guestId,
+          status: item.status,
+        })
+      : getHostQueueRemovalPolicyRejection(item.status)
     if (rejection) return { code: rejection }
 
     const [removed] = await tx
@@ -238,6 +242,47 @@ export const removeQueueItem = async ({
 
     return { code: 'ok', item: toQueueItemView(removed, removed.positionAtAddition) }
   })
+
+export const removeQueueItem = (input: {
+  roomId: string
+  itemId: string
+  guestId: string
+  now?: Date
+}) => removeQueueItemForActor(input)
+
+export const removeQueueItemAsHost = (input: { roomId: string; itemId: string; now?: Date }) =>
+  removeQueueItemForActor(input)
+
+export type QueueActivityView = {
+  id: string
+  status: 'removed' | 'skipped' | 'failed' | 'completed'
+  videoTitle: string
+  requesterDisplayName: string
+  endedAt: string
+}
+
+export const getLatestQueueActivity = async (
+  roomId: string,
+): Promise<QueueActivityView | undefined> => {
+  const item = await db.query.queueItems.findFirst({
+    where: and(
+      eq(queueItems.roomId, roomId),
+      inArray(queueItems.status, ['removed', 'skipped', 'failed', 'completed']),
+      isNotNull(queueItems.endedAt),
+    ),
+    orderBy: [desc(queueItems.endedAt), desc(queueItems.sequence)],
+  })
+  if (!item || !item.endedAt || item.status === 'queued' || item.status === 'current')
+    return undefined
+
+  return {
+    id: item.id,
+    status: item.status,
+    videoTitle: item.videoTitle,
+    requesterDisplayName: item.requesterDisplayName,
+    endedAt: item.endedAt.toISOString(),
+  }
+}
 
 export const getActiveQueue = async (roomId: string): Promise<QueueItemView[]> => {
   const items = await db

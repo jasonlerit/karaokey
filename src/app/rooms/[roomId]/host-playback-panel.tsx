@@ -203,7 +203,7 @@ export const HostPlaybackPanel = ({ initialSnapshot }: { initialSnapshot: RoomSn
     const player = playerRef.current
     if (!player || !isPlayerReady) return
 
-    if (!currentItem) {
+    if (snapshot.status !== 'active' || !currentItem) {
       if (loadedItemIdRef.current) player.stopVideo()
       loadedItemIdRef.current = null
       return
@@ -230,7 +230,13 @@ export const HostPlaybackPanel = ({ initialSnapshot }: { initialSnapshot: RoomSn
     } else if (snapshot.playback.state === 'paused' && player.getPlayerState() !== 2) {
       player.pauseVideo()
     }
-  }, [currentItem, isPlayerReady, snapshot.playback.positionSeconds, snapshot.playback.state])
+  }, [
+    currentItem,
+    isPlayerReady,
+    snapshot.playback.positionSeconds,
+    snapshot.playback.state,
+    snapshot.status,
+  ])
 
   const startOrPlay = () => {
     command.reset()

@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { and, eq, gt, lte, or, sql } from 'drizzle-orm'
+import { and, eq, lte, or, sql } from 'drizzle-orm'
 
 import {
   generateRoomCode,
@@ -11,7 +11,7 @@ import {
 } from '@/common/room-credentials'
 import { getRoomExpiration } from '@/common/room-lifecycle'
 import { db } from '@/db'
-import { rooms, type Room } from '@/db/schemas'
+import { queueItems, rooms, type Room } from '@/db/schemas'
 
 const ROOM_CREATION_ATTEMPTS = 5
 
@@ -162,33 +162,58 @@ export const endRoom = async (
   hostCredential: string | undefined,
   now = new Date(),
 ): Promise<RoomAccessResult> => {
-  const access = await getHostRoom(roomId, hostCredential, now)
-  if (access.code !== 'ok') return access
+  return db.transaction(async (tx) => {
+    const [room] = await tx.select().from(rooms).where(eq(rooms.id, roomId)).for('update')
+    if (!room) return { code: 'not_found' }
+    if (room.status === 'ended') return { code: 'room_ended' }
+    if (room.status === 'expired' || room.expiresAt <= now || room.absoluteExpiresAt <= now) {
+      if (room.status === 'active') {
+        await tx
+          .update(rooms)
+          .set({
+            status: 'expired',
+            playbackState: 'idle',
+            currentQueueItemId: null,
+            lastKnownPlaybackPositionSeconds: 0,
+            expiredAt: now,
+            version: sql`${rooms.version} + 1`,
+          })
+          .where(eq(rooms.id, roomId))
+      }
+      return { code: 'room_expired' }
+    }
+    if (!hostCredential || !(await verifyHostCredential(hostCredential, room.hostCredentialHash))) {
+      return { code: 'invalid_host_credential' }
+    }
 
-  const [endedRoom] = await db
-    .update(rooms)
-    .set({
-      status: 'ended',
-      playbackState: 'idle',
-      endedAt: now,
-      version: sql`${rooms.version} + 1`,
-    })
-    .where(
-      and(
-        eq(rooms.id, roomId),
-        eq(rooms.status, 'active'),
-        gt(rooms.expiresAt, now),
-        gt(rooms.absoluteExpiresAt, now),
-      ),
-    )
-    .returning()
+    if (room.currentQueueItemId) {
+      await tx
+        .update(queueItems)
+        .set({ status: 'skipped', endedAt: now })
+        .where(
+          and(
+            eq(queueItems.id, room.currentQueueItemId),
+            eq(queueItems.roomId, roomId),
+            eq(queueItems.status, 'current'),
+          ),
+        )
+    }
 
-  if (endedRoom) return { code: 'ok', room: toRoomView(endedRoom) }
+    const [endedRoom] = await tx
+      .update(rooms)
+      .set({
+        status: 'ended',
+        playbackState: 'idle',
+        currentQueueItemId: null,
+        lastKnownPlaybackPositionSeconds: 0,
+        endedAt: now,
+        lastActiveAt: now,
+        version: sql`${rooms.version} + 1`,
+      })
+      .where(eq(rooms.id, roomId))
+      .returning()
+    if (!endedRoom) throw new Error('Ending the locked room did not return it')
 
-  const latest = await findRoom(roomId, now)
-  if (!latest) return { code: 'not_found' }
-  if (latest.status === 'ended') return { code: 'room_ended' }
-  if (latest.status === 'expired') return { code: 'room_expired' }
-
-  return { code: 'invalid_host_credential' }
+    return { code: 'ok', room: toRoomView(endedRoom) }
+  })
 }

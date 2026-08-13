@@ -13,6 +13,13 @@ export type RoomSnapshot = {
     guestCount: number
     guests?: { id: string; displayName: string }[]
   }
+  recentActivity?: {
+    id: string
+    status: 'removed' | 'skipped' | 'failed' | 'completed'
+    videoTitle: string
+    requesterDisplayName: string
+    endedAt: string
+  }
   queue: {
     id: string
     sequence: number

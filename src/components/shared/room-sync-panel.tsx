@@ -19,6 +19,7 @@ type RoomSyncPanelProps = {
   initialSnapshot: RoomSnapshot
   showGuests?: boolean
   viewerGuestId?: string
+  canModerate?: boolean
 }
 
 class QueueRemovalError extends Error {
@@ -40,6 +41,7 @@ export const RoomSyncPanel = ({
   initialSnapshot,
   showGuests = false,
   viewerGuestId,
+  canModerate = false,
 }: RoomSyncPanelProps) => {
   const queryClient = useQueryClient()
   const [connectionState, setConnectionState] = useState<RoomConnectionState>('connecting')
@@ -165,7 +167,8 @@ export const RoomSyncPanel = ({
                       : item.requester.displayName}
                   </span>
                 </span>
-                {item.requester.guestId === viewerGuestId ? (
+                {snapshot.status === 'active' &&
+                (canModerate || item.requester.guestId === viewerGuestId) ? (
                   <Button
                     type='button'
                     variant='ghost'
@@ -197,7 +200,9 @@ export const RoomSyncPanel = ({
       ) : null}
       {removal.isSuccess ? (
         <p role='status' className='mt-3 text-sm font-medium text-primary'>
-          Your song was removed from the queue.
+          {canModerate
+            ? 'The song was removed from the queue.'
+            : 'Your song was removed from the queue.'}
         </p>
       ) : null}
       {removal.isError ? (
@@ -205,6 +210,21 @@ export const RoomSyncPanel = ({
           {removal.error instanceof QueueRemovalError && removal.error.code === 'not_queued'
             ? 'That song can no longer be removed because its queue state changed.'
             : 'The song could not be removed. Refresh the room and try again.'}
+        </p>
+      ) : null}
+      {snapshot.recentActivity ? (
+        <p
+          key={snapshot.recentActivity.id}
+          aria-live='polite'
+          className='mt-3 text-sm text-muted-foreground'
+        >
+          {snapshot.recentActivity.status === 'removed'
+            ? `${snapshot.recentActivity.videoTitle}, requested by ${snapshot.recentActivity.requesterDisplayName}, was removed from the queue.`
+            : snapshot.recentActivity.status === 'skipped'
+              ? `${snapshot.recentActivity.videoTitle}, requested by ${snapshot.recentActivity.requesterDisplayName}, was skipped.`
+              : snapshot.recentActivity.status === 'failed'
+                ? `${snapshot.recentActivity.videoTitle} could not be played.`
+                : `${snapshot.recentActivity.videoTitle} finished.`}
         </p>
       ) : null}
     </section>

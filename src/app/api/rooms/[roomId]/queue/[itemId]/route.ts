@@ -2,7 +2,9 @@ import { z } from 'zod'
 
 import { getGuestRoomCredential } from '@/common/guest-session-cookie'
 import { getGuestSessionByRoomId } from '@/common/guest-sessions'
-import { removeQueueItem } from '@/common/queue-items'
+import { getHostCredential } from '@/common/host-room-session'
+import { removeQueueItem, removeQueueItemAsHost } from '@/common/queue-items'
+import { getHostRoom } from '@/common/rooms'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,6 +14,8 @@ const statusByCode = {
   not_found: 404,
   not_owner: 403,
   not_queued: 409,
+  room_ended: 409,
+  room_expired: 410,
 } as const
 
 export async function DELETE(
@@ -23,14 +27,20 @@ export async function DELETE(
     return Response.json({ code: 'not_found' }, { status: 404 })
   }
 
-  const credential = await getGuestRoomCredential(roomId)
-  const guest = await getGuestSessionByRoomId(roomId, credential)
-  if (guest.code !== 'ok') {
-    return Response.json({ code: 'invalid_session' }, { status: 401 })
-  }
-
   try {
-    const result = await removeQueueItem({ roomId, itemId, guestId: guest.guest.id })
+    const hostCredential = await getHostCredential(roomId)
+    const host = hostCredential ? await getHostRoom(roomId, hostCredential) : undefined
+    const guestCredential = await getGuestRoomCredential(roomId)
+    const guest =
+      host?.code === 'ok' ? undefined : await getGuestSessionByRoomId(roomId, guestCredential)
+
+    const result =
+      host?.code === 'ok'
+        ? await removeQueueItemAsHost({ roomId, itemId })
+        : guest?.code === 'ok'
+          ? await removeQueueItem({ roomId, itemId, guestId: guest.guest.id })
+          : undefined
+    if (!result) return Response.json({ code: 'invalid_session' }, { status: 401 })
     if (result.code !== 'ok') {
       return Response.json({ code: result.code }, { status: statusByCode[result.code] })
     }

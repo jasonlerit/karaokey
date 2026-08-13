@@ -18,6 +18,10 @@ export const getQueueRemovalPolicyRejection = ({
   if (status !== 'queued') return 'not_queued'
 }
 
+export const getHostQueueRemovalPolicyRejection = (
+  status: 'queued' | 'current' | 'removed' | 'skipped' | 'failed' | 'completed',
+): 'not_queued' | undefined => (status === 'queued' ? undefined : 'not_queued')
+
 export const getQueuePolicyRejection = ({
   guestUpcomingCount,
   roomUpcomingCount,

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 
 import {
+  getHostQueueRemovalPolicyRejection,
   getQueuePolicyRejection,
   getQueueRemovalPolicyRejection,
   MAX_UPCOMING_ITEMS_PER_GUEST,
@@ -81,5 +82,12 @@ test('rejects removal after playback begins or an item becomes terminal', () => 
       }),
       'not_queued',
     )
+  }
+})
+
+test('lets a host remove any upcoming item but no current or terminal item', () => {
+  assert.equal(getHostQueueRemovalPolicyRejection('queued'), undefined)
+  for (const status of ['current', 'removed', 'skipped', 'failed', 'completed'] as const) {
+    assert.equal(getHostQueueRemovalPolicyRejection(status), 'not_queued')
   }
 })

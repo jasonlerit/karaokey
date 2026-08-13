@@ -4,7 +4,7 @@ Last updated: 2026-08-13
 
 ## Current phase
 
-Phase 3 — Host moderation
+Phase 4 — Synchronized TV experience
 
 ## Current
 
@@ -12,11 +12,11 @@ None
 
 ## Last completed
 
-KARA-009 — TV player and host playback controls
+KARA-010 — Host queue moderation and room control
 
 ## Next
 
-KARA-010 — Host queue moderation and room control
+KARA-011 — Synchronized TV room experience
 
 ## Blockers
 
@@ -94,3 +94,14 @@ None
 - Restart seeks the current player to zero and reconciles that position without changing queue
   order or creating an item. Every server-state-changing player command requires the host cookie.
 - KARA-009 required no database migration.
+- KARA-010 lets an authenticated host remove any upcoming item from the shared queue while guest
+  requests continue to enforce ownership. Both paths lock the room before the item, reject current
+  and terminal items, and stop accepting removals after the room ends or expires.
+- Host skip uses the expected-current-item playback command from KARA-008, so repeated and
+  conflicting requests cannot advance twice. The host player already exposes this control.
+- Ending a room now locks and authenticates the room in one transaction, marks any current item
+  skipped, clears the authoritative current item, resets playback to idle, and increments the room
+  version. Live host players stop when the terminal room snapshot arrives.
+- Realtime snapshots include the latest terminal queue activity. Connected clients receive a
+  visible, assistive status message when a song is removed, skipped, completed, or fails.
+- KARA-010 required no database migration.

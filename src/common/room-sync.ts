@@ -6,7 +6,7 @@ import type { RoomSnapshot } from '@/common/room-sync-state'
 import { db } from '@/db'
 import { guestSessions, rooms } from '@/db/schemas'
 
-import { getActiveQueue } from './queue-items'
+import { getActiveQueue, getLatestQueueActivity } from './queue-items'
 import { expireRooms } from './rooms'
 
 export type RoomSubscriberRole = 'host' | 'guest'
@@ -19,12 +19,13 @@ export const getRoomSnapshot = async (
   const room = await db.query.rooms.findFirst({ where: eq(rooms.id, roomId) })
   if (!room) return undefined
 
-  const [[{ guestCount }], queue] = await Promise.all([
+  const [[{ guestCount }], queue, recentActivity] = await Promise.all([
     db
       .select({ guestCount: sql<number>`count(*)::int` })
       .from(guestSessions)
       .where(eq(guestSessions.roomId, roomId)),
     getActiveQueue(roomId),
+    getLatestQueueActivity(roomId),
   ])
 
   const guests =
@@ -46,6 +47,7 @@ export const getRoomSnapshot = async (
       positionSeconds: room.lastKnownPlaybackPositionSeconds,
     },
     presence: { guestCount, guests },
+    recentActivity,
     queue,
   }
 }

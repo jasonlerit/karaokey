@@ -132,7 +132,7 @@ export default async function HostRoomPage({ params }: { params: Promise<{ roomI
             />
           ) : null}
 
-          <RoomSyncPanel initialSnapshot={initialSnapshot} showGuests />
+          <RoomSyncPanel initialSnapshot={initialSnapshot} showGuests canModerate />
 
           <div className='mt-8 flex justify-end'>
             <EndRoomControl action={endAction} />
