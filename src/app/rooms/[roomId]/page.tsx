@@ -101,7 +101,7 @@ export default async function HostRoomPage({ params }: { params: Promise<{ roomI
             </div>
           </div>
 
-          <div className='mt-5 grid gap-5 border-t border-border pt-5 lg:grid-cols-[minmax(0,3fr)_minmax(18rem,2fr)] lg:items-start'>
+          <div className='mt-5 grid gap-5 border-t border-border pt-5 min-[60rem]:grid-cols-[minmax(0,3fr)_minmax(18rem,2fr)] min-[60rem]:items-start'>
             <HostPlaybackPanel initialSnapshot={initialSnapshot} />
 
             <aside className='space-y-4' aria-label='Room queue and host actions'>

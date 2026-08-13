@@ -60,9 +60,9 @@ export const RoomJoiningDisplay = ({
       {isVisible ? (
         <div
           id='joining-information'
-          className='mt-4 space-y-4 rounded-xl bg-muted/40 p-4 lg:grid lg:grid-cols-[8rem_minmax(0,1fr)] lg:items-center lg:gap-4 lg:space-y-0'
+          className='mt-4 space-y-4 rounded-xl bg-muted/40 p-4 min-[60rem]:grid min-[60rem]:grid-cols-[8rem_minmax(0,1fr)] min-[60rem]:items-center min-[60rem]:gap-4 min-[60rem]:space-y-0'
         >
-          <div className='mx-auto w-full max-w-64 rounded-xl bg-white p-3 shadow-sm lg:max-w-32 lg:p-2'>
+          <div className='mx-auto w-full max-w-64 rounded-xl bg-white p-3 shadow-sm min-[60rem]:max-w-32 min-[60rem]:p-2'>
             <Image
               src={qrCodeDataUrl}
               alt='QR code linking to the guest room'
@@ -74,17 +74,17 @@ export const RoomJoiningDisplay = ({
             />
           </div>
 
-          <div className='space-y-4 text-center lg:space-y-2'>
+          <div className='space-y-4 text-center min-[60rem]:space-y-2'>
             <div>
               <p className='text-sm font-medium tracking-widest text-muted-foreground uppercase'>
                 Room code
               </p>
-              <p className='mt-2 text-4xl font-semibold tracking-[0.18em] lg:mt-1 lg:text-2xl'>
+              <p className='mt-2 text-4xl font-semibold tracking-[0.18em] min-[60rem]:mt-1 min-[60rem]:text-2xl'>
                 {roomCode}
               </p>
             </div>
 
-            <ol className='space-y-3 text-base leading-6 lg:space-y-1 lg:text-sm lg:leading-5'>
+            <ol className='space-y-3 text-base leading-6 min-[60rem]:space-y-1 min-[60rem]:text-sm min-[60rem]:leading-5'>
               <li className='flex items-center justify-center gap-3'>
                 <QrCode aria-hidden='true' className='size-5 shrink-0 text-primary' />
                 Scan the QR code with a phone camera.
@@ -95,7 +95,7 @@ export const RoomJoiningDisplay = ({
               </li>
             </ol>
 
-            <Card size='sm' className='text-left lg:hidden'>
+            <Card size='sm' className='text-left min-[60rem]:hidden'>
               <CardContent>
                 <CardTitle className='flex items-center gap-2'>
                   <Link2 aria-hidden='true' className='size-4' />

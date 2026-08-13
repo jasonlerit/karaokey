@@ -167,7 +167,7 @@ YouTube API project owner are required to close the remaining release gates.
   matrix, test conditions, privacy limits, and a dated YouTube policy/quota checklist. Gates that
   require a release environment, real devices, or the API project owner remain explicitly unrun.
 - KARA-014 required no database migration.
-- TV testing exposed browsers that report a roughly 1024-pixel CSS viewport despite a larger
-  physical panel. The host switches to its landscape player/sidebar layout at that width, and the
+- TV testing exposed a browser that reports a 960×540 CSS viewport despite a larger physical
+  panel. The host switches to its landscape player/sidebar layout at that width, and the
   idle QR panel becomes compact so the queue and joining details remain visible without an initial
   page scroll.
