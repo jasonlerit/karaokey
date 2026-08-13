@@ -124,6 +124,10 @@ const errorContent = (error: Error) => {
       title: 'Request could not be added',
       description: 'Choose the song again and retry.',
     },
+    rate_limited: {
+      title: 'Please slow down',
+      description: 'Too many requests were made recently. Wait a moment and try again.',
+    },
     unavailable: {
       title: 'YouTube search unavailable',
       description: 'Check your connection and try the search again.',

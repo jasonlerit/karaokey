@@ -3,7 +3,12 @@ import { Music2 } from 'lucide-react'
 import { createRoomAction } from '@/app/actions'
 import { Button } from '@/components/ui/button'
 
-export default function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string; retryAfter?: string }>
+}) {
+  const parameters = await searchParams
   return (
     <main className='flex flex-1 items-center justify-center px-6 py-16'>
       <section className='mx-auto flex max-w-xl flex-col items-center text-center'>
@@ -25,6 +30,12 @@ export default function Home() {
             Create room
           </Button>
         </form>
+        {parameters.error === 'rate_limited' ? (
+          <p role='alert' className='mt-4 text-sm text-destructive'>
+            Too many rooms were created from this client. Try again in{' '}
+            {parameters.retryAfter ?? 'a few'} seconds.
+          </p>
+        ) : null}
       </section>
     </main>
   )

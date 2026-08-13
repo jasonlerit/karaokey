@@ -9,6 +9,7 @@ import {
   hashJoinToken,
   verifyHostCredential,
 } from '@/common/room-credentials'
+import { getRoomRetentionCutoff } from '@/common/data-retention'
 import { getRoomExpiration } from '@/common/room-lifecycle'
 import { db } from '@/db'
 import { queueItems, rooms, type Room } from '@/db/schemas'
@@ -65,8 +66,8 @@ const isUniqueViolation = (error: unknown): boolean => {
   return 'cause' in error && isUniqueViolation(error.cause)
 }
 
-export const expireRooms = async (now = new Date()) => {
-  return db
+const expireRoomsOnly = async (now: Date) =>
+  db
     .update(rooms)
     .set({
       status: 'expired',
@@ -81,6 +82,29 @@ export const expireRooms = async (now = new Date()) => {
       ),
     )
     .returning({ id: rooms.id })
+
+const deleteRetainedRoomData = (now: Date) => {
+  const cutoff = getRoomRetentionCutoff(now)
+  return db
+    .delete(rooms)
+    .where(
+      or(
+        and(eq(rooms.status, 'expired'), lte(rooms.expiredAt, cutoff)),
+        and(eq(rooms.status, 'ended'), lte(rooms.endedAt, cutoff)),
+      ),
+    )
+    .returning({ id: rooms.id })
+}
+
+export const expireRooms = async (now = new Date()) => {
+  const expired = await expireRoomsOnly(now)
+  await deleteRetainedRoomData(now)
+  return expired
+}
+
+export const cleanupExpiredRoomData = async (now = new Date()) => {
+  await expireRoomsOnly(now)
+  return deleteRetainedRoomData(now)
 }
 
 const findRoom = async (roomId: string, now = new Date()) => {
@@ -90,6 +114,7 @@ const findRoom = async (roomId: string, now = new Date()) => {
 }
 
 export const createRoom = async (now = new Date()): Promise<CreateRoomResult> => {
+  await cleanupExpiredRoomData(now)
   const { expiresAt, absoluteExpiresAt } = getRoomExpiration(now)
 
   for (let attempt = 0; attempt < ROOM_CREATION_ATTEMPTS; attempt += 1) {

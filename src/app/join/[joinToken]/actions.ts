@@ -1,9 +1,11 @@
 'use server'
 
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 
 import { saveGuestRoomSession } from '@/common/guest-session-cookie'
 import { createGuestSession } from '@/common/guest-sessions'
+import { checkRateLimit } from '@/common/rate-limit'
 
 export type JoinRoomState = { message: string }
 
@@ -12,6 +14,15 @@ export const joinRoomAction = async (
   _previousState: JoinRoomState,
   formData: FormData,
 ): Promise<JoinRoomState> => {
+  const limit = checkRateLimit({
+    policy: 'roomJoin',
+    headers: await headers(),
+    scope: joinToken,
+  })
+  if (!limit.allowed) {
+    return { message: `Too many join attempts. Try again in ${limit.retryAfter} seconds.` }
+  }
+
   let result
 
   try {

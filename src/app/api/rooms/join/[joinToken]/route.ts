@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
 import { getRoomByJoinToken } from '@/common/rooms'
+import { checkRateLimit, rateLimitResponse } from '@/common/rate-limit'
 
 const joinTokenSchema = z
   .string()
@@ -9,8 +10,10 @@ const joinTokenSchema = z
   .max(64)
   .regex(/^[A-Za-z0-9_-]+$/)
 
-export async function GET(_request: Request, context: { params: Promise<{ joinToken: string }> }) {
+export async function GET(request: Request, context: { params: Promise<{ joinToken: string }> }) {
   const { joinToken } = await context.params
+  const limit = checkRateLimit({ policy: 'roomJoin', headers: request.headers, scope: joinToken })
+  if (!limit.allowed) return rateLimitResponse(limit.retryAfter)
   const parsedToken = joinTokenSchema.safeParse(joinToken)
 
   if (!parsedToken.success) {

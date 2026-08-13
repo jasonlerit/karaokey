@@ -4,6 +4,7 @@ import { getGuestRoomCredential } from '@/common/guest-session-cookie'
 import { getGuestSessionByRoomId } from '@/common/guest-sessions'
 import { getHostCredential } from '@/common/host-room-session'
 import { removeQueueItem, removeQueueItemAsHost } from '@/common/queue-items'
+import { checkRateLimit, rateLimitResponse } from '@/common/rate-limit'
 import { getHostRoom } from '@/common/rooms'
 
 export const dynamic = 'force-dynamic'
@@ -19,7 +20,7 @@ const statusByCode = {
 } as const
 
 export async function DELETE(
-  _request: Request,
+  request: Request,
   context: { params: Promise<{ roomId: string; itemId: string }> },
 ) {
   const { roomId, itemId } = await context.params
@@ -33,6 +34,17 @@ export async function DELETE(
     const guestCredential = await getGuestRoomCredential(roomId)
     const guest =
       host?.code === 'ok' ? undefined : await getGuestSessionByRoomId(roomId, guestCredential)
+
+    const actorId =
+      host?.code === 'ok' ? `host:${roomId}` : guest?.code === 'ok' ? guest.guest.id : undefined
+    if (actorId) {
+      const limit = checkRateLimit({
+        policy: 'queueMutation',
+        headers: request.headers,
+        scope: actorId,
+      })
+      if (!limit.allowed) return rateLimitResponse(limit.retryAfter)
+    }
 
     const result =
       host?.code === 'ok'

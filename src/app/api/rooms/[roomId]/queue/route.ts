@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { getGuestRoomCredential } from '@/common/guest-session-cookie'
 import { getGuestSessionByRoomId } from '@/common/guest-sessions'
 import { addQueueItem, getQueueItemByIdempotencyKey } from '@/common/queue-items'
+import { checkRateLimit, rateLimitResponse } from '@/common/rate-limit'
 import { validateYouTubeVideo, YouTubeApiError, youtubeVideoIdSchema } from '@/lib/youtube'
 
 export const dynamic = 'force-dynamic'
@@ -34,6 +35,13 @@ export async function POST(request: Request, context: { params: Promise<{ roomId
   if (guest.code !== 'ok') {
     return Response.json({ code: 'invalid_session' }, { status: 401 })
   }
+
+  const limit = checkRateLimit({
+    policy: 'queueMutation',
+    headers: request.headers,
+    scope: guest.guest.id,
+  })
+  if (!limit.allowed) return rateLimitResponse(limit.retryAfter)
 
   try {
     const body = bodySchema.parse(await request.json())

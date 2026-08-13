@@ -18,6 +18,11 @@ const envSchema = z.object({
     .default('false')
     .transform((value) => value === 'true'),
   YOUTUBE_API_KEY: z.string().trim().min(1).optional(),
+  RATE_LIMIT_TRUST_PROXY: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((value) => value === 'true'),
+  RETENTION_CLEANUP_SECRET: z.string().trim().min(32).optional(),
 })
 
 const result = envSchema.safeParse(process.env)

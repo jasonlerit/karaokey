@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 import { hasActiveGuestAccess } from '@/common/active-guest-access'
+import { checkRateLimit, rateLimitResponse } from '@/common/rate-limit'
 import { searchYouTube, YouTubeApiError } from '@/lib/youtube'
 
 export const dynamic = 'force-dynamic'
@@ -9,6 +10,8 @@ const roomIdSchema = z.uuid()
 
 export async function GET(request: Request, context: { params: Promise<{ roomId: string }> }) {
   const { roomId } = await context.params
+  const limit = checkRateLimit({ policy: 'youtubeSearch', headers: request.headers, scope: roomId })
+  if (!limit.allowed) return rateLimitResponse(limit.retryAfter)
   if (!roomIdSchema.safeParse(roomId).success || !(await hasActiveGuestAccess(roomId))) {
     return Response.json({ code: 'unauthorized' }, { status: 401 })
   }

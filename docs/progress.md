@@ -1,10 +1,10 @@
 # Progress
 
-Last updated: 2026-08-13
+Last updated: 2026-08-14
 
 ## Current phase
 
-Phase 6 — Privacy and abuse protection
+Phase 7 — Operational readiness
 
 ## Current
 
@@ -12,11 +12,11 @@ None
 
 ## Last completed
 
-KARA-012 — Playback and integration failure recovery
+KARA-013 — Privacy, retention, and abuse protection
 
 ## Next
 
-KARA-013 — Privacy, retention, and abuse protection
+KARA-014 — Accessibility, compatibility, and operational readiness
 
 ## Blockers
 
@@ -134,3 +134,21 @@ None
   with a fresh authoritative snapshot, and monotonic version checks reject stale or duplicate data
   without replaying client mutations.
 - KARA-012 required no database migration.
+- KARA-013 confirms a 24-hour retention window after a room ends or expires. Cleanup deletes the
+  room and cascades to its guest sessions and queue items during ordinary room traffic and through
+  a secret-protected maintenance endpoint that production must schedule at least hourly.
+- Fixed-window abuse limits are five room creations per ten minutes, ten join attempts per ten
+  minutes, thirty searches per minute, and twenty queue mutations per minute. Keys combine an
+  operation scope with a client identifier, are SHA-256 hashed, and remain only in short-lived
+  process memory. Proxy headers are ignored unless `RATE_LIMIT_TRUST_PROXY` is explicitly enabled.
+- The host credential is no longer returned in room-creation JSON after it is saved in its
+  protected cookie. Existing guest views expose neither host credentials nor host-only presence
+  details, and ordinary database query logging remains disabled by default.
+- The public `/privacy` notice covers anonymous sessions, temporary room data, YouTube processing,
+  operational logs, retention, and abuse controls and is linked from every screen. Internal
+  deployment requirements are recorded in `docs/privacy-and-retention.md`, including a seven-day
+  maximum target for privacy-conscious operational logs.
+- Existing server authorization and policy tests cover invalid host credentials, guest ownership,
+  and host-only queue removal behavior. New tests cover fixed-window limits and the retention
+  cutoff.
+- KARA-013 required no database migration.
