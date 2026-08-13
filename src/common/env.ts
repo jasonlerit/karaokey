@@ -11,6 +11,10 @@ const envSchema = z.object({
       (value) => ["postgres:", "postgresql:"].includes(new URL(value).protocol),
       "DATABASE_URL must be a PostgreSQL connection URL",
     ),
+  DATABASE_LOGGER: z
+    .enum(["true", "false"])
+    .default("false")
+    .transform((value) => value === "true"),
 });
 
 const result = envSchema.safeParse(process.env);

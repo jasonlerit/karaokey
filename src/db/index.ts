@@ -6,5 +6,6 @@ import * as schema from "./schema";
 
 export const db = drizzle(env.DATABASE_URL, {
   casing: "snake_case",
+  logger: env.DATABASE_LOGGER,
   schema,
 });
