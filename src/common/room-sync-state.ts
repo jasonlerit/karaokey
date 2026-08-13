@@ -12,6 +12,21 @@ export type RoomSnapshot = {
     guestCount: number
     guests?: { id: string; displayName: string }[]
   }
+  queue: {
+    id: string
+    sequence: number
+    position: number
+    status: 'queued' | 'current' | 'removed' | 'skipped' | 'failed' | 'completed'
+    video: {
+      videoId: string
+      title: string
+      channel: string
+      thumbnailUrl: string
+      durationSeconds?: number
+    }
+    requester: { guestId: string; displayName: string }
+    createdAt: string
+  }[]
 }
 
 export type RoomSyncMessage = {

@@ -9,6 +9,7 @@ const snapshot = (version: number): RoomSnapshot => ({
   status: 'active',
   playback: { state: 'idle', positionSeconds: 0 },
   presence: { guestCount: 0 },
+  queue: [],
 })
 
 test('rejects stale and duplicate room messages', () => {

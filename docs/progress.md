@@ -4,7 +4,7 @@ Last updated: 2026-08-13
 
 ## Current phase
 
-Phase 1 — Room foundation
+Phase 2 — Guest queue experience
 
 ## Current
 
@@ -12,11 +12,11 @@ None
 
 ## Last completed
 
-KARA-005 — YouTube song discovery and selection
+KARA-006 — Atomic shared queue and request rules
 
 ## Next
 
-KARA-006 — Atomic shared queue
+KARA-007 — Guest mobile room and self-service queue
 
 ## Blockers
 
@@ -51,3 +51,13 @@ None
   invalid-query, quota, unavailable-video, configuration, and general-error states are distinct.
 - Set the server-only `YOUTUBE_API_KEY` environment variable to enable song discovery. No YouTube
   credential or unvalidated upstream response is sent to the browser.
+- KARA-006 fixes the MVP limits at three upcoming songs per guest and fifty per room. Duplicate
+  videos are rejected only when already current or upcoming for the same guest; another guest may
+  request the same video.
+- Queue additions lock the room row in a database transaction, use a monotonic per-room sequence,
+  and persist the original queue position. Guest-scoped UUID idempotency keys return the original
+  accepted result on retry.
+- Active queue items are included in realtime snapshots in server FIFO order. Terminal items are
+  retained as history but excluded from active snapshots and limit calculations.
+- Migration `0004_flimsy_proteus.sql` adds queue items and has been applied to the configured
+  database.

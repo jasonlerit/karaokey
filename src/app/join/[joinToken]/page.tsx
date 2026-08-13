@@ -99,7 +99,7 @@ export default async function JoinRoomPage({ params }: { params: Promise<{ joinT
               Welcome back, {restored.guest.displayName}
             </h1>
             <p className='mt-3 leading-6 text-muted-foreground'>
-              Search for a karaoke video below. The shared queue arrives in the next phase.
+              Search for a karaoke video below and add it to the shared queue.
             </p>
             <RoomSyncPanel initialSnapshot={initialSnapshot} />
             <YouTubeSongSearch roomId={roomAccess.room.id} />

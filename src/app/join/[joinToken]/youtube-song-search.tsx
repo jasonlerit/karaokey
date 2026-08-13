@@ -55,14 +55,26 @@ const searchVideos = async (roomId: string, request: SearchRequest) => {
   return searchResultSchema.parse(await response.json())
 }
 
-const validateVideo = async (roomId: string, videoId: string) => {
-  const response = await fetch(`/api/rooms/${roomId}/youtube/validate`, {
+const addVideoToQueue = async (
+  roomId: string,
+  request: { videoId: string; idempotencyKey: string },
+) => {
+  const response = await fetch(`/api/rooms/${roomId}/queue`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ videoId }),
+    body: JSON.stringify(request),
   })
   if (!response.ok) return readError(response)
-  return z.object({ video: videoSchema }).parse(await response.json())
+  return z
+    .object({
+      item: z.object({
+        id: z.uuid(),
+        position: z.number(),
+        video: videoSchema.omit({ embeddable: true }),
+      }),
+      replayed: z.boolean(),
+    })
+    .parse(await response.json())
 }
 
 const errorContent = (error: Error) => {
@@ -88,6 +100,30 @@ const errorContent = (error: Error) => {
       title: 'Video no longer available',
       description: 'Choose another result or search again.',
     },
+    duplicate_video: {
+      title: 'Song already requested',
+      description: 'You already have this video in the active queue.',
+    },
+    guest_limit_reached: {
+      title: 'Your queue is full',
+      description: 'You can have up to three upcoming songs. Try again after one plays.',
+    },
+    room_limit_reached: {
+      title: 'The room queue is full',
+      description: 'The room already has fifty upcoming songs. Try again when the queue moves.',
+    },
+    room_ended: {
+      title: 'Room ended',
+      description: 'This room is no longer accepting song requests.',
+    },
+    room_expired: {
+      title: 'Room expired',
+      description: 'This room is no longer accepting song requests.',
+    },
+    invalid_request: {
+      title: 'Request could not be added',
+      description: 'Choose the song again and retry.',
+    },
     unavailable: {
       title: 'YouTube search unavailable',
       description: 'Check your connection and try the search again.',
@@ -108,8 +144,10 @@ export const YouTubeSongSearch = ({ roomId }: { roomId: string }) => {
     staleTime: 0,
   })
   const selection = useMutation({
-    mutationFn: (videoId: string) => validateVideo(roomId, videoId),
-    retry: false,
+    mutationFn: (request: { videoId: string; idempotencyKey: string }) =>
+      addVideoToQueue(roomId, request),
+    retry: (failureCount, error) =>
+      failureCount < 1 && (!(error instanceof SearchError) || error.code === 'unavailable'),
   })
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
@@ -218,11 +256,16 @@ export const YouTubeSongSearch = ({ roomId }: { roomId: string }) => {
                     variant='secondary'
                     className='mt-3'
                     disabled={selection.isPending}
-                    onClick={() => selection.mutate(video.videoId)}
+                    onClick={() =>
+                      selection.mutate({
+                        videoId: video.videoId,
+                        idempotencyKey: crypto.randomUUID(),
+                      })
+                    }
                   >
-                    {selection.isPending && selection.variables === video.videoId
-                      ? 'Checking…'
-                      : 'Select'}
+                    {selection.isPending && selection.variables?.videoId === video.videoId
+                      ? 'Adding…'
+                      : 'Add to queue'}
                   </Button>
                 </div>
               </li>
@@ -233,7 +276,7 @@ export const YouTubeSongSearch = ({ roomId }: { roomId: string }) => {
 
       {selection.isSuccess ? (
         <p role='status' className='mt-4 text-sm font-medium text-primary'>
-          {selection.data.video.title} is available and ready to add when the shared queue arrives.
+          {selection.data.item.video.title} added at position {selection.data.item.position}.
         </p>
       ) : null}
       {selectionError ? (

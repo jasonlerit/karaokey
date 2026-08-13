@@ -29,6 +29,13 @@
       "when": 1786629313748,
       "tag": "0003_slow_spitfire",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1786631720827,
+      "tag": "0004_flimsy_proteus",
+      "breakpoints": true
     }
   ]
 }

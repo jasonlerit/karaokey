@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { CircleAlert, Users } from 'lucide-react'
+import { CircleAlert, ListMusic, Users } from 'lucide-react'
 
 import {
   acceptRoomSyncMessage,
@@ -90,6 +90,34 @@ export const RoomSyncPanel = ({ initialSnapshot, showGuests = false }: RoomSyncP
           {snapshot.presence.guests.map((guest) => guest.displayName).join(', ')}
         </p>
       ) : null}
+
+      <div className='mt-4 border-t border-border pt-4'>
+        <p className='flex items-center gap-2 text-sm font-medium'>
+          <ListMusic aria-hidden='true' className='size-4 text-muted-foreground' />
+          Up next
+        </p>
+        {snapshot.queue.filter((item) => item.status === 'queued').length ? (
+          <ol className='mt-3 space-y-2'>
+            {snapshot.queue
+              .filter((item) => item.status === 'queued')
+              .map((item) => (
+                <li key={item.id} className='flex gap-3 text-sm'>
+                  <span className='w-5 shrink-0 text-right text-muted-foreground'>
+                    {item.position}.
+                  </span>
+                  <span className='min-w-0'>
+                    <span className='block truncate font-medium'>{item.video.title}</span>
+                    <span className='block truncate text-xs text-muted-foreground'>
+                      {item.requester.displayName}
+                    </span>
+                  </span>
+                </li>
+              ))}
+          </ol>
+        ) : (
+          <p className='mt-2 text-sm text-muted-foreground'>No songs queued yet.</p>
+        )}
+      </div>
 
       {snapshot.status !== 'active' ? (
         <p className='mt-3 flex items-center gap-2 text-sm font-medium text-destructive'>
