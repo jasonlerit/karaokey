@@ -13,8 +13,10 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## Architecture
 
 - `src/app` contains App Router routes, layouts, and route-specific UI.
+- `src/components/shared` contains reusable application-wide components and providers.
 - `src/common` contains shared infrastructure and utilities that are not tied to a route.
 - `src/db` contains the Drizzle client and PostgreSQL schema.
+- `src/lib` contains configured library clients and framework integrations.
 - Prefer the `@/*` alias for imports from `src`.
 - Keep modules focused and colocate feature-specific code with its route or feature.
 
@@ -23,6 +25,17 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Use Server Components by default. Add `"use client"` only when browser APIs, client-side state, or event handlers require it.
 - Keep secrets, database access, and other server-only code out of Client Components.
 - Use framework APIs and conventions documented in the installed Next.js guides.
+
+## TanStack Query
+
+- Use TanStack Query for client-side server state, caching, mutations, and hydration; prefer direct data access in Server Components when client caching is unnecessary.
+- Use the shared `getQueryClient` from `src/lib/react-query.ts`; do not create ad hoc `QueryClient` instances.
+- Keep the application provider in `src/components/shared/react-query-client-provider.tsx` and mount it around application children in the root layout.
+- Use stable array query keys that include every input used by the query function.
+- Prefer reusable query option factories when the same query is prefetched on the server and consumed on the client.
+- Use `HydrationBoundary` with `dehydrate(getQueryClient())` for server-prefetched queries. Preserve the configured SuperJSON serialization.
+- After successful mutations, invalidate or update every affected query explicitly.
+- Keep React Query Devtools inside the shared provider and do not include its production entry point unless explicitly requested.
 
 ## Environment variables
 
