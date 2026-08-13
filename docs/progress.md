@@ -12,11 +12,11 @@ None
 
 ## Last completed
 
-KARA-003 — Real-time room synchronization foundation
+KARA-004 — Host lobby and room joining display
 
 ## Next
 
-KARA-004 — Host lobby and join display
+KARA-005 — YouTube song discovery
 
 ## Blockers
 
@@ -40,3 +40,7 @@ None
   counts; guests receive counts only.
 - Migration `0003_slow_spitfire.sql` adds room snapshot versions and has been applied to the
   configured database.
+- KARA-004 generates a 384-pixel, high-error-correction QR code on the server containing only the
+  guest URL. The host lobby keeps its room code and joining instructions prominent at TV scale.
+- Joining information uses a keyboard-accessible collapsible panel that is visible while idle and
+  can be hidden later without permanently covering playback.

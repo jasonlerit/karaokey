@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { endRoomAction } from '@/app/actions'
 import { env } from '@/common/env'
 import { getHostCredential, getHostJoinToken } from '@/common/host-room-session'
+import { createGuestQrCode } from '@/common/qr-code'
 import { getRoomSnapshot } from '@/common/room-sync'
 import { getHostRoom, getRoomByJoinToken, type RoomAccessResult } from '@/common/rooms'
 import { RoomSyncPanel } from '@/components/shared/room-sync-panel'
@@ -12,6 +13,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card'
 
 import { EndRoomControl } from './end-room-control'
+import { RoomJoiningDisplay } from './room-joining-display'
 
 const roomIdSchema = z.uuid()
 
@@ -72,11 +74,12 @@ export default async function HostRoomPage({ params }: { params: Promise<{ roomI
     joinToken && joinAccess?.code === 'ok' && joinAccess.room.id === result.room.id
       ? new URL(`/join/${joinToken}`, env.APP_URL).toString()
       : undefined
+  const qrCodeDataUrl = guestUrl ? await createGuestQrCode(guestUrl) : undefined
   const endAction = endRoomAction.bind(null, result.room.id)
 
   return (
     <main className='flex flex-1 items-center justify-center px-6 py-12'>
-      <Card className='w-full max-w-3xl gap-0 py-0 shadow-sm'>
+      <Card className='w-full max-w-6xl gap-0 py-0 shadow-sm'>
         <CardContent className='p-8 sm:p-12'>
           <div className='flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between'>
             <div>
@@ -118,13 +121,12 @@ export default async function HostRoomPage({ params }: { params: Promise<{ roomI
             </Card>
           </div>
 
-          {guestUrl ? (
-            <Card size='sm' className='mt-6'>
-              <CardContent>
-                <CardTitle>Guest link</CardTitle>
-                <CardDescription className='mt-2 break-all'>{guestUrl}</CardDescription>
-              </CardContent>
-            </Card>
+          {guestUrl && qrCodeDataUrl ? (
+            <RoomJoiningDisplay
+              guestUrl={guestUrl}
+              qrCodeDataUrl={qrCodeDataUrl}
+              roomCode={result.room.roomCode}
+            />
           ) : null}
 
           <RoomSyncPanel initialSnapshot={initialSnapshot} showGuests />
