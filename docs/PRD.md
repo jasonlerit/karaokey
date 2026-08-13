@@ -364,16 +364,16 @@ The MVP is ready when all of the following are true:
 
 ## 18. Risks and mitigations
 
-| Risk | Impact | Mitigation |
-| --- | --- | --- |
-| YouTube quota exhaustion | Guests cannot search | Debounce and cap search, cache permitted metadata, monitor quota, and define a clear degraded state |
-| Video cannot be embedded or played | Queue stalls | Validate when possible, detect player errors, mark the item failed, and allow skip/automatic advance |
-| Browser blocks autoplay | First song does not start | Require a clear host interaction to initialize playback |
-| Room link is shared outside the venue | Spam or unwanted requests | Use hard-to-guess tokens, queue limits, rate limits, host removal, and room termination |
-| Simultaneous updates corrupt queue order | Lost or duplicated requests | Use server-authoritative atomic ordering, transactions, and idempotency keys |
-| Host refreshes or loses connection | Playback control is interrupted | Persist the host credential locally and restore state from the server |
-| Anonymous usage enables abuse | Offensive names or queue flooding | Validate names, limit actions, rate-limit sessions, and give the host moderation controls |
-| Third-party policy changes | Integration becomes non-compliant | Review current YouTube requirements before launch and periodically thereafter |
+| Risk                                     | Impact                            | Mitigation                                                                                           |
+| ---------------------------------------- | --------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| YouTube quota exhaustion                 | Guests cannot search              | Debounce and cap search, cache permitted metadata, monitor quota, and define a clear degraded state  |
+| Video cannot be embedded or played       | Queue stalls                      | Validate when possible, detect player errors, mark the item failed, and allow skip/automatic advance |
+| Browser blocks autoplay                  | First song does not start         | Require a clear host interaction to initialize playback                                              |
+| Room link is shared outside the venue    | Spam or unwanted requests         | Use hard-to-guess tokens, queue limits, rate limits, host removal, and room termination              |
+| Simultaneous updates corrupt queue order | Lost or duplicated requests       | Use server-authoritative atomic ordering, transactions, and idempotency keys                         |
+| Host refreshes or loses connection       | Playback control is interrupted   | Persist the host credential locally and restore state from the server                                |
+| Anonymous usage enables abuse            | Offensive names or queue flooding | Validate names, limit actions, rate-limit sessions, and give the host moderation controls            |
+| Third-party policy changes               | Integration becomes non-compliant | Review current YouTube requirements before launch and periodically thereafter                        |
 
 ## 19. Open product decisions
 

@@ -8,6 +8,13 @@
       "when": 1786598098754,
       "tag": "0000_jittery_vertigo",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1786626531691,
+      "tag": "0001_serious_sumo",
+      "breakpoints": true
     }
   ]
 }
