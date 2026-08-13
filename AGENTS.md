@@ -73,9 +73,16 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Avoid `any`, unsafe casts, and non-null assertions unless their safety is established and documented.
 - Return or throw actionable errors without logging secrets or sensitive values.
 
+## Formatting
+
+- Format source files with the repository Prettier configuration; do not hand-format against it.
+- Use single quotes in TypeScript and JSX, omit semicolons, and keep trailing commas where supported.
+- Let `prettier-plugin-tailwindcss` order Tailwind classes using `src/app/globals.css`.
+- Run `npm run format` after editing supported files and include formatting changes in the same task.
+
 ## Verification
 
-- Run `npm run lint` and `npx tsc --noEmit` after code changes.
+- Run `npm run format:check`, `npm run lint`, and `npx tsc --noEmit` after code changes.
 - Run relevant tests when they exist or when a change adds them.
 - Run `npm run db:generate` after schema changes and review the generated SQL.
 - Report checks that could not be run and explain why.

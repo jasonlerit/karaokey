@@ -1,11 +1,11 @@
-import { drizzle } from "drizzle-orm/node-postgres";
+import { drizzle } from 'drizzle-orm/node-postgres'
 
-import { env } from "@/common/env";
+import { env } from '@/common/env'
 
-import * as schema from "./schemas";
+import * as schema from './schemas'
 
 export const db = drizzle(env.DATABASE_URL, {
-  casing: "snake_case",
+  casing: 'snake_case',
   logger: env.DATABASE_LOGGER,
   schema,
-});
+})
