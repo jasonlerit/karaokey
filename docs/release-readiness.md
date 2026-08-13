@@ -48,9 +48,10 @@ logical focus order, descriptive names, 200% zoom without lost controls, and ann
 search, queue, playback, terminal-room, and reconnect states. Verify contrast with an automated
 WCAG 2.2 AA checker and confirm every status includes text rather than relying on color.
 
-Exercise guest flows at 320×568, 390×844, and 412×915 CSS pixels. Exercise host flows at 1280×720,
-1920×1080, and one stacked/narrow viewport. At each size, create/join a room, search, add/remove a
-request, start/pause/restart/skip playback, reconnect, handle an unavailable video, and end the room.
+Exercise guest flows at 320×568, 390×844, and 412×915 CSS pixels. Exercise host flows at 1024×576
+(a common TV browser CSS viewport), 1280×720, 1920×1080, and one stacked/narrow viewport. At each
+size, create/join a room, search, add/remove a request, start/pause/restart/skip playback, reconnect,
+handle an unavailable video, and end the room.
 
 ## Browser gate
 
