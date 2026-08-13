@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 
 import { JoinRoomForm } from './join-room-form'
+import { YouTubeSongSearch } from './youtube-song-search'
 
 const joinTokenSchema = z
   .string()
@@ -88,7 +89,7 @@ export default async function JoinRoomPage({ params }: { params: Promise<{ joinT
 
     return (
       <main className='flex flex-1 items-center justify-center px-6 py-16'>
-        <Card className='w-full max-w-md text-center shadow-sm'>
+        <Card className='w-full max-w-2xl text-center shadow-sm'>
           <CardContent className='p-4'>
             <Music2 aria-hidden='true' className='mx-auto mb-5 size-10 text-primary' />
             <p className='text-sm font-medium tracking-widest text-muted-foreground uppercase'>
@@ -98,10 +99,10 @@ export default async function JoinRoomPage({ params }: { params: Promise<{ joinT
               Welcome back, {restored.guest.displayName}
             </h1>
             <p className='mt-3 leading-6 text-muted-foreground'>
-              Your guest session is active. Song search and the shared queue arrive in the next
-              phase.
+              Search for a karaoke video below. The shared queue arrives in the next phase.
             </p>
             <RoomSyncPanel initialSnapshot={initialSnapshot} />
+            <YouTubeSongSearch roomId={roomAccess.room.id} />
           </CardContent>
         </Card>
       </main>

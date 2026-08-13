@@ -12,11 +12,11 @@ None
 
 ## Last completed
 
-KARA-004 — Host lobby and room joining display
+KARA-005 — YouTube song discovery and selection
 
 ## Next
 
-KARA-005 — YouTube song discovery
+KARA-006 — Atomic shared queue
 
 ## Blockers
 
@@ -44,3 +44,10 @@ None
   guest URL. The host lobby keeps its room code and joining instructions prominent at TV scale.
 - Joining information uses a keyboard-accessible collapsible panel that is visible while idle and
   can be hidden later without permanently covering playback.
+- KARA-005 uses authenticated server routes for official YouTube `search.list` and `videos.list`
+  requests. Search is explicitly submitted, uncached, paginated, and appends `karaoke` only when
+  the query does not already contain it.
+- Search results are filtered and revalidated for public embeddability. Initial, loading, empty,
+  invalid-query, quota, unavailable-video, configuration, and general-error states are distinct.
+- Set the server-only `YOUTUBE_API_KEY` environment variable to enable song discovery. No YouTube
+  credential or unvalidated upstream response is sent to the browser.

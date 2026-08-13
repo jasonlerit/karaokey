@@ -17,6 +17,7 @@ const envSchema = z.object({
     .enum(['true', 'false'])
     .default('false')
     .transform((value) => value === 'true'),
+  YOUTUBE_API_KEY: z.string().trim().min(1).optional(),
 })
 
 const result = envSchema.safeParse(process.env)
