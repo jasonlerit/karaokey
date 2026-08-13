@@ -3,6 +3,8 @@
 import { useActionState } from 'react'
 
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 import { joinRoomAction, type JoinRoomState } from './actions'
 
@@ -14,10 +16,8 @@ export const JoinRoomForm = ({ joinToken }: { joinToken: string }) => {
 
   return (
     <form action={formAction} className='mt-7 text-left'>
-      <label htmlFor='displayName' className='text-sm font-medium'>
-        Display name
-      </label>
-      <input
+      <Label htmlFor='displayName'>Display name</Label>
+      <Input
         id='displayName'
         name='displayName'
         type='text'
@@ -26,7 +26,7 @@ export const JoinRoomForm = ({ joinToken }: { joinToken: string }) => {
         enterKeyHint='go'
         maxLength={100}
         aria-describedby='display-name-help display-name-error'
-        className='mt-2 h-11 w-full rounded-lg border border-input bg-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30'
+        className='mt-2 h-11 bg-background px-3 text-base'
         placeholder='How should we call you?'
       />
       <p id='display-name-help' className='mt-2 text-sm text-muted-foreground'>
