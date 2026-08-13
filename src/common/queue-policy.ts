@@ -3,6 +3,21 @@ export const MAX_UPCOMING_ITEMS_PER_ROOM = 50
 
 export type QueuePolicyCode = 'guest_limit_reached' | 'room_limit_reached' | 'duplicate_video'
 
+export type QueueRemovalPolicyCode = 'not_owner' | 'not_queued'
+
+export const getQueueRemovalPolicyRejection = ({
+  requesterGuestId,
+  guestId,
+  status,
+}: {
+  requesterGuestId: string
+  guestId: string
+  status: 'queued' | 'current' | 'removed' | 'skipped' | 'failed' | 'completed'
+}): QueueRemovalPolicyCode | undefined => {
+  if (requesterGuestId !== guestId) return 'not_owner'
+  if (status !== 'queued') return 'not_queued'
+}
+
 export const getQueuePolicyRejection = ({
   guestUpcomingCount,
   roomUpcomingCount,

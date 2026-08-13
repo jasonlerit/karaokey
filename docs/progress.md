@@ -4,7 +4,7 @@ Last updated: 2026-08-13
 
 ## Current phase
 
-Phase 2 — Guest queue experience
+Phase 3 — Playback lifecycle
 
 ## Current
 
@@ -12,11 +12,11 @@ None
 
 ## Last completed
 
-KARA-006 — Atomic shared queue and request rules
+KARA-007 — Guest mobile room and self-service queue
 
 ## Next
 
-KARA-007 — Guest mobile room and self-service queue
+KARA-008 — Server-authoritative playback lifecycle
 
 ## Blockers
 
@@ -61,3 +61,12 @@ None
   retained as history but excluded from active snapshots and limit calculations.
 - Migration `0004_flimsy_proteus.sql` adds queue items and has been applied to the configured
   database.
+- KARA-007 uses a compact single-page mobile layout with search first and the authoritative live
+  queue immediately below it. Current and upcoming requesters are visible, while a guest's own
+  requests are explicitly marked.
+- Guests can remove only their own queued items through an authenticated endpoint. The server
+  locks the room and item, rejects non-owners and non-queued states, records removal as a terminal
+  state, and advances the realtime room version.
+- Add and remove controls use touch-sized targets, suppress concurrent gestures, update the
+  visible queue immediately after success, and announce mutation and room-status results to
+  assistive technology.

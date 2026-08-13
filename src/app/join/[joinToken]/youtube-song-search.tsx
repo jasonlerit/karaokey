@@ -168,7 +168,7 @@ export const YouTubeSongSearch = ({ roomId }: { roomId: string }) => {
 
   return (
     <section
-      className='mt-8 border-t border-border pt-8 text-left'
+      className='mt-6 border-t border-border pt-6 text-left'
       aria-labelledby='song-search-title'
     >
       <div className='text-center'>
@@ -181,7 +181,7 @@ export const YouTubeSongSearch = ({ roomId }: { roomId: string }) => {
         </p>
       </div>
 
-      <form onSubmit={submit} className='mt-5 flex gap-2'>
+      <form onSubmit={submit} className='mt-5 flex flex-col gap-2 min-[420px]:flex-row'>
         <Input
           type='search'
           value={query}
@@ -189,9 +189,9 @@ export const YouTubeSongSearch = ({ roomId }: { roomId: string }) => {
           placeholder='Song title or artist'
           aria-label='Search YouTube karaoke videos'
           aria-invalid={Boolean(inputError)}
-          className='h-10'
+          className='h-11 text-base'
         />
-        <Button type='submit' size='lg' disabled={search.isFetching}>
+        <Button type='submit' size='lg' className='h-11' disabled={search.isFetching}>
           {search.isFetching ? (
             <LoaderCircle aria-hidden='true' className='animate-spin' />
           ) : (
@@ -232,13 +232,16 @@ export const YouTubeSongSearch = ({ roomId }: { roomId: string }) => {
           {search.data.items.map((video) => {
             const duration = formatVideoDuration(video.durationSeconds)
             return (
-              <li key={video.videoId} className='flex gap-3 rounded-xl border border-border p-3'>
-                <div className='relative aspect-video w-32 shrink-0 overflow-hidden rounded-lg bg-muted'>
+              <li
+                key={video.videoId}
+                className='flex flex-col gap-3 rounded-xl border border-border p-3 min-[420px]:flex-row'
+              >
+                <div className='relative aspect-video w-full shrink-0 overflow-hidden rounded-lg bg-muted min-[420px]:w-32'>
                   <Image
                     src={video.thumbnailUrl}
                     alt=''
                     fill
-                    sizes='128px'
+                    sizes='(max-width: 419px) 100vw, 128px'
                     className='object-cover'
                   />
                   {duration ? (
@@ -254,7 +257,7 @@ export const YouTubeSongSearch = ({ roomId }: { roomId: string }) => {
                     type='button'
                     size='sm'
                     variant='secondary'
-                    className='mt-3'
+                    className='mt-3 h-11 w-full min-[420px]:w-auto'
                     disabled={selection.isPending}
                     onClick={() =>
                       selection.mutate({

@@ -2,7 +2,11 @@ import 'server-only'
 
 import { and, asc, count, eq, inArray, max, sql } from 'drizzle-orm'
 
-import { getQueuePolicyRejection, type QueuePolicyCode } from '@/common/queue-policy'
+import {
+  getQueuePolicyRejection,
+  getQueueRemovalPolicyRejection,
+  type QueuePolicyCode,
+} from '@/common/queue-policy'
 import { db } from '@/db'
 import { queueItems, rooms, type QueueItem } from '@/db/schemas'
 import type { YouTubeVideo } from '@/lib/youtube'
@@ -30,6 +34,9 @@ export type AddQueueItemResult =
   | {
       code: QueuePolicyCode | 'not_found' | 'room_ended' | 'room_expired' | 'invalid_session'
     }
+
+export type RemoveQueueItemResult =
+  { code: 'ok'; item: QueueItemView } | { code: 'not_found' | 'not_owner' | 'not_queued' }
 
 const toQueueItemView = (item: QueueItem, position: number): QueueItemView => ({
   id: item.id,
@@ -181,6 +188,56 @@ export const getQueueItemByIdempotencyKey = async (
   })
   return item ? toQueueItemView(item, item.positionAtAddition) : undefined
 }
+
+export const removeQueueItem = async ({
+  roomId,
+  itemId,
+  guestId,
+  now = new Date(),
+}: {
+  roomId: string
+  itemId: string
+  guestId: string
+  now?: Date
+}): Promise<RemoveQueueItemResult> =>
+  db.transaction(async (tx) => {
+    const [room] = await tx
+      .select({ id: rooms.id })
+      .from(rooms)
+      .where(eq(rooms.id, roomId))
+      .for('update')
+    if (!room) return { code: 'not_found' }
+
+    const [item] = await tx
+      .select()
+      .from(queueItems)
+      .where(and(eq(queueItems.id, itemId), eq(queueItems.roomId, roomId)))
+      .for('update')
+
+    if (!item) return { code: 'not_found' }
+
+    const rejection = getQueueRemovalPolicyRejection({
+      requesterGuestId: item.requesterGuestId,
+      guestId,
+      status: item.status,
+    })
+    if (rejection) return { code: rejection }
+
+    const [removed] = await tx
+      .update(queueItems)
+      .set({ status: 'removed', endedAt: now })
+      .where(and(eq(queueItems.id, itemId), eq(queueItems.status, 'queued')))
+      .returning()
+
+    if (!removed) return { code: 'not_queued' }
+
+    await tx
+      .update(rooms)
+      .set({ version: sql`${rooms.version} + 1`, lastActiveAt: now })
+      .where(eq(rooms.id, roomId))
+
+    return { code: 'ok', item: toQueueItemView(removed, removed.positionAtAddition) }
+  })
 
 export const getActiveQueue = async (roomId: string): Promise<QueueItemView[]> => {
   const items = await db

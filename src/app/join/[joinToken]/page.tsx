@@ -88,7 +88,7 @@ export default async function JoinRoomPage({ params }: { params: Promise<{ joinT
     if (!initialSnapshot) return <RoomMessage result={{ code: 'not_found' }} />
 
     return (
-      <main className='flex flex-1 items-center justify-center px-6 py-16'>
+      <main className='flex flex-1 items-start justify-center px-3 py-6 sm:px-6 sm:py-12'>
         <Card className='w-full max-w-2xl text-center shadow-sm'>
           <CardContent className='p-4'>
             <Music2 aria-hidden='true' className='mx-auto mb-5 size-10 text-primary' />
@@ -101,8 +101,8 @@ export default async function JoinRoomPage({ params }: { params: Promise<{ joinT
             <p className='mt-3 leading-6 text-muted-foreground'>
               Search for a karaoke video below and add it to the shared queue.
             </p>
-            <RoomSyncPanel initialSnapshot={initialSnapshot} />
             <YouTubeSongSearch roomId={roomAccess.room.id} />
+            <RoomSyncPanel initialSnapshot={initialSnapshot} viewerGuestId={restored.guest.id} />
           </CardContent>
         </Card>
       </main>
