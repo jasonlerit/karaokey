@@ -4,7 +4,7 @@ Last updated: 2026-08-13
 
 ## Current phase
 
-Phase 3 — Playback lifecycle
+Phase 3 — Host playback experience
 
 ## Current
 
@@ -12,11 +12,11 @@ None
 
 ## Last completed
 
-KARA-007 — Guest mobile room and self-service queue
+KARA-008 — Server-authoritative playback lifecycle
 
 ## Next
 
-KARA-008 — Server-authoritative playback lifecycle
+KARA-009 — TV player and host playback controls
 
 ## Blockers
 
@@ -70,3 +70,15 @@ None
 - Add and remove controls use touch-sized targets, suppress concurrent gestures, update the
   visible queue immediately after success, and announce mutation and room-status results to
   assistive technology.
+- KARA-008 serializes every playback transition on the room row. Starting promotes only the
+  earliest queued item; completing, skipping, or failing the current item records its terminal
+  state and promotes the next queued item in the same transaction.
+- Advancement commands include the expected current-item ID. Concurrent, retried, or delayed
+  commands for an older item receive a stable conflict and cannot advance the queue twice.
+- Playback position is persisted on lifecycle transitions for now. A newly promoted item starts
+  at zero; an empty queue returns the active room to idle while retaining the final known position.
+- Realtime snapshots now identify the authoritative current queue item directly. Each successful
+  transition increments the room version, so existing live clients receive the new playback and
+  queue state without refresh.
+- KARA-008 required no migration because the room playback fields and queue terminal states were
+  introduced by the existing room and queue migrations.

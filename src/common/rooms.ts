@@ -21,6 +21,8 @@ export type RoomView = Pick<
   | 'roomCode'
   | 'status'
   | 'playbackState'
+  | 'currentQueueItemId'
+  | 'lastKnownPlaybackPositionSeconds'
   | 'version'
   | 'createdAt'
   | 'lastActiveAt'
@@ -45,6 +47,8 @@ const toRoomView = (room: Room): RoomView => ({
   roomCode: room.roomCode,
   status: room.status,
   playbackState: room.playbackState,
+  currentQueueItemId: room.currentQueueItemId,
+  lastKnownPlaybackPositionSeconds: room.lastKnownPlaybackPositionSeconds,
   version: room.version,
   createdAt: room.createdAt,
   lastActiveAt: room.lastActiveAt,

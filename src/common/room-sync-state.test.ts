@@ -7,7 +7,7 @@ const snapshot = (version: number): RoomSnapshot => ({
   roomId: 'room-1',
   version,
   status: 'active',
-  playback: { state: 'idle', positionSeconds: 0 },
+  playback: { state: 'idle', currentItemId: null, positionSeconds: 0 },
   presence: { guestCount: 0 },
   queue: [],
 })

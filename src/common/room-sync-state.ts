@@ -6,6 +6,7 @@ export type RoomSnapshot = {
   status: 'active' | 'ended' | 'expired'
   playback: {
     state: 'idle' | 'playing' | 'paused'
+    currentItemId: string | null
     positionSeconds: number
   }
   presence: {

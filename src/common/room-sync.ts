@@ -42,6 +42,7 @@ export const getRoomSnapshot = async (
     status: room.status,
     playback: {
       state: room.playbackState,
+      currentItemId: room.currentQueueItemId,
       positionSeconds: room.lastKnownPlaybackPositionSeconds,
     },
     presence: { guestCount, guests },
