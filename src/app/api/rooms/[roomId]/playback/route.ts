@@ -1,7 +1,12 @@
 import { z } from 'zod'
 
 import { getHostCredential } from '@/common/host-room-session'
-import { advancePlayback, playbackOutcomes, startPlayback } from '@/common/playback-lifecycle'
+import {
+  advancePlayback,
+  playbackOutcomes,
+  startPlayback,
+  synchronizePlayback,
+} from '@/common/playback-lifecycle'
 import { getHostRoom } from '@/common/rooms'
 
 export const dynamic = 'force-dynamic'
@@ -13,6 +18,12 @@ const commandSchema = z.discriminatedUnion('action', [
     action: z.literal('advance'),
     expectedCurrentItemId: z.uuid(),
     outcome: z.enum(playbackOutcomes),
+    positionSeconds: z.int().min(0),
+  }),
+  z.object({
+    action: z.literal('synchronize'),
+    expectedCurrentItemId: z.uuid(),
+    state: z.enum(['playing', 'paused']),
     positionSeconds: z.int().min(0),
   }),
 ])
@@ -44,7 +55,9 @@ export async function POST(request: Request, context: { params: Promise<{ roomId
     const result =
       command.action === 'start'
         ? await startPlayback(roomId)
-        : await advancePlayback({ roomId, ...command })
+        : command.action === 'advance'
+          ? await advancePlayback({ roomId, ...command })
+          : await synchronizePlayback({ roomId, ...command })
 
     return result.code === 'ok' ? Response.json(result) : respondWithError(result.code)
   } catch (error) {

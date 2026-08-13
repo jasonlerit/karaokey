@@ -17,7 +17,7 @@ export type PlaybackTransitionView = {
   roomId: string
   version: number
   playback: {
-    state: 'idle' | 'playing'
+    state: 'idle' | 'playing' | 'paused'
     currentItemId: string | null
     positionSeconds: number
   }
@@ -191,6 +191,66 @@ export const advancePlayback = async ({
         },
         previousItem: { id: finished.id, status: outcome },
         ...(promoted ? { currentItem: { id: promoted.id, status: 'current' as const } } : {}),
+      },
+    }
+  })
+
+export const synchronizePlayback = async ({
+  roomId,
+  expectedCurrentItemId,
+  state,
+  positionSeconds,
+  now = new Date(),
+}: {
+  roomId: string
+  expectedCurrentItemId: string
+  state: 'playing' | 'paused'
+  positionSeconds: number
+  now?: Date
+}): Promise<PlaybackTransitionResult> =>
+  db.transaction(async (tx) => {
+    const [room] = await tx.select().from(rooms).where(eq(rooms.id, roomId)).for('update')
+    if (!room) return { code: 'not_found' }
+
+    if (room.status === 'active' && (room.expiresAt <= now || room.absoluteExpiresAt <= now)) {
+      await expireLockedRoom(tx, roomId, now)
+      return { code: 'room_expired' }
+    }
+
+    const currentItem = await tx.query.queueItems.findFirst({
+      where: and(eq(queueItems.id, expectedCurrentItemId), eq(queueItems.roomId, roomId)),
+    })
+    const rejection = getAdvancePlaybackRejection({
+      roomStatus: room.status,
+      currentItemId: room.currentQueueItemId,
+      expectedCurrentItemId,
+      currentItemStatus: currentItem?.status,
+    })
+    if (rejection) return { code: rejection }
+
+    const [updatedRoom] = await tx
+      .update(rooms)
+      .set({
+        playbackState: state,
+        lastKnownPlaybackPositionSeconds: positionSeconds,
+        lastActiveAt: now,
+        version: sql`${rooms.version} + 1`,
+      })
+      .where(and(eq(rooms.id, roomId), eq(rooms.currentQueueItemId, expectedCurrentItemId)))
+      .returning({ version: rooms.version })
+    if (!updatedRoom) throw new Error('Playback synchronization lost the locked current item')
+
+    return {
+      code: 'ok',
+      transition: {
+        roomId,
+        version: updatedRoom.version,
+        playback: {
+          state,
+          currentItemId: expectedCurrentItemId,
+          positionSeconds,
+        },
+        currentItem: { id: expectedCurrentItemId, status: 'current' },
       },
     }
   })

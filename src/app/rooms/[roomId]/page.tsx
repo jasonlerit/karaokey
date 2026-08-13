@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card'
 
 import { EndRoomControl } from './end-room-control'
+import { HostPlaybackPanel } from './host-playback-panel'
 import { RoomJoiningDisplay } from './room-joining-display'
 
 const roomIdSchema = z.uuid()
@@ -120,6 +121,8 @@ export default async function HostRoomPage({ params }: { params: Promise<{ roomI
               </CardContent>
             </Card>
           </div>
+
+          <HostPlaybackPanel initialSnapshot={initialSnapshot} />
 
           {guestUrl && qrCodeDataUrl ? (
             <RoomJoiningDisplay

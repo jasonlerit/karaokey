@@ -4,7 +4,7 @@ Last updated: 2026-08-13
 
 ## Current phase
 
-Phase 3 — Host playback experience
+Phase 3 — Host moderation
 
 ## Current
 
@@ -12,11 +12,11 @@ None
 
 ## Last completed
 
-KARA-008 — Server-authoritative playback lifecycle
+KARA-009 — TV player and host playback controls
 
 ## Next
 
-KARA-009 — TV player and host playback controls
+KARA-010 — Host queue moderation and room control
 
 ## Blockers
 
@@ -82,3 +82,15 @@ None
   queue state without refresh.
 - KARA-008 required no migration because the room playback fields and queue terminal states were
   introduced by the existing room and queue migrations.
+- KARA-009 loads the official YouTube IFrame Player API only on the host room. Guests continue to
+  receive playback metadata through realtime snapshots and never load the video player.
+- Host controls provide play, pause, restart, skip, and local volume. Volume is intentionally
+  browser-local and is not written to room state or synchronized to guests.
+- Autoplay remains browser-driven rather than a room preference. A prominent Start Playback action
+  appears when a queued item is ready or the embedded player needs a host interaction.
+- YouTube playing and paused events synchronize state and position against the loaded queue-item
+  ID. Ended and player-error events atomically complete or fail that item and promote the next one.
+  Stale events receive the existing conflict response and cannot overwrite a newer current item.
+- Restart seeks the current player to zero and reconciles that position without changing queue
+  order or creating an item. Every server-state-changing player command requires the host cookie.
+- KARA-009 required no database migration.

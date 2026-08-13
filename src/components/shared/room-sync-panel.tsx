@@ -13,7 +13,7 @@ import {
 } from '@/common/room-sync-state'
 import { Button } from '@/components/ui/button'
 
-const roomSnapshotKey = (roomId: string) => ['room-snapshot', roomId] as const
+export const roomSnapshotKey = (roomId: string) => ['room-snapshot', roomId] as const
 
 type RoomSyncPanelProps = {
   initialSnapshot: RoomSnapshot
