@@ -15,6 +15,13 @@
       "when": 1786626531691,
       "tag": "0001_serious_sumo",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1786627699851,
+      "tag": "0002_gorgeous_vindicator",
+      "breakpoints": true
     }
   ]
 }
