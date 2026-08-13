@@ -80,6 +80,15 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Let `prettier-plugin-tailwindcss` order Tailwind classes using `src/app/globals.css`.
 - Run `npm run format` after editing supported files and include formatting changes in the same task.
 
+## Commit messages
+
+- Use Conventional Commits in the form `<type>(optional-scope): <description>`.
+- Use one of these types: `feat`, `fix`, `chore`, `refactor`, `docs`, `test`, `style`, `perf`, `ci`, `build`, or `revert`.
+- Write the description in lowercase, imperative mood without a trailing period, for example `feat(auth): add password reset flow`.
+- Choose the type based on the primary purpose of the commit; do not use `feat` for maintenance or tooling changes.
+- Mark breaking changes with `!` before the colon and explain them in a `BREAKING CHANGE:` footer when needed.
+- Before creating a commit, review the staged diff and use a message that accurately summarizes it.
+
 ## Verification
 
 - Run `npm run check` after code changes; it verifies formatting, ESLint, and TypeScript.
