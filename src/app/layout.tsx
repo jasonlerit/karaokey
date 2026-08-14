@@ -27,7 +27,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang='en' className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className='flex min-h-full flex-col'>
         <ReactQueryClientProvider>{children}</ReactQueryClientProvider>
-        <footer className='px-6 py-5 text-center text-xs text-muted-foreground'>
+        <footer className='site-footer px-6 py-5 text-center text-xs text-muted-foreground'>
           Anonymous rooms are temporary.{' '}
           <Link href='/privacy' className='underline underline-offset-4'>
             Privacy notice

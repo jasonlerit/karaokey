@@ -127,4 +127,8 @@
   html {
     @apply font-sans;
   }
+
+  body:has([data-host-room]) .site-footer {
+    display: none;
+  }
 }

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { DoorOpen, Music2 } from 'lucide-react'
+import { DoorOpen } from 'lucide-react'
 import { z } from 'zod'
 
 import { endRoomAction } from '@/app/actions'
@@ -79,32 +79,27 @@ export default async function HostRoomPage({ params }: { params: Promise<{ roomI
   const endAction = endRoomAction.bind(null, result.room.id)
 
   return (
-    <main className='flex flex-1 items-start justify-center px-3 py-3 sm:px-5 sm:py-5'>
-      <Card className='w-full max-w-400 gap-0 py-0 shadow-sm'>
-        <CardContent className='p-4 sm:p-6'>
-          <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
-            <div>
-              <div className='mb-2 flex items-center gap-2 text-sm font-medium text-primary'>
-                <Music2 aria-hidden='true' className='size-4' />
-                Host room
+    <main
+      data-host-room
+      className='flex min-h-dvh flex-1 items-stretch justify-center p-3 min-[60rem]:h-dvh min-[60rem]:overflow-hidden'
+    >
+      <Card className='min-h-[calc(100dvh-1.5rem)] w-full max-w-400 gap-0 py-0 shadow-sm min-[60rem]:h-[calc(100dvh-1.5rem)]'>
+        <CardContent className='min-h-0 flex-1 p-3'>
+          <HostPlaybackPanel
+            initialSnapshot={initialSnapshot}
+            roomActions={
+              <div className='flex items-center justify-between gap-4 border-t border-border pt-4'>
+                <Link
+                  href='/privacy'
+                  className='text-xs text-muted-foreground underline underline-offset-4'
+                >
+                  Privacy notice
+                </Link>
+                <EndRoomControl action={endAction} />
               </div>
-              <h1 className='text-3xl font-semibold tracking-tight'>Room {result.room.roomCode}</h1>
-              <p className='mt-1 text-sm text-muted-foreground'>
-                Keep this display open while guests join, request songs, and sing.
-              </p>
-            </div>
-            <div className='rounded-xl bg-muted px-5 py-3 text-center'>
-              <p className='text-xs font-medium tracking-widest text-muted-foreground uppercase'>
-                Room code
-              </p>
-              <p className='mt-1 text-3xl font-semibold tracking-[0.2em]'>{result.room.roomCode}</p>
-            </div>
-          </div>
-
-          <div className='mt-5 grid gap-5 border-t border-border pt-5 min-[60rem]:grid-cols-[minmax(0,3fr)_minmax(18rem,2fr)] min-[60rem]:items-start'>
-            <HostPlaybackPanel initialSnapshot={initialSnapshot} />
-
-            <aside className='space-y-4' aria-label='Room queue and host actions'>
+            }
+          >
+            <div className='space-y-4'>
               <RoomSyncPanel
                 initialSnapshot={initialSnapshot}
                 showGuests
@@ -120,12 +115,8 @@ export default async function HostRoomPage({ params }: { params: Promise<{ roomI
                   initialSnapshot={initialSnapshot}
                 />
               ) : null}
-
-              <div className='flex justify-end'>
-                <EndRoomControl action={endAction} />
-              </div>
-            </aside>
-          </div>
+            </div>
+          </HostPlaybackPanel>
         </CardContent>
       </Card>
     </main>

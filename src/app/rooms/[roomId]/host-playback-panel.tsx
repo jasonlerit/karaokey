@@ -1,7 +1,7 @@
 'use client'
 
 import Script from 'next/script'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import {
   AlertCircle,
@@ -95,7 +95,15 @@ const sendPlaybackCommand = async (roomId: string, command: PlaybackCommand) => 
 const getPosition = (player: YouTubePlayer | null) =>
   Math.max(0, Math.floor(player?.getCurrentTime() ?? 0))
 
-export const HostPlaybackPanel = ({ initialSnapshot }: { initialSnapshot: RoomSnapshot }) => {
+export const HostPlaybackPanel = ({
+  initialSnapshot,
+  children,
+  roomActions,
+}: {
+  initialSnapshot: RoomSnapshot
+  children: ReactNode
+  roomActions: ReactNode
+}) => {
   const playerElementId = `youtube-player-${initialSnapshot.roomId}`
   const playerRef = useRef<YouTubePlayer | null>(null)
   const loadedItemIdRef = useRef<string | null>(null)
@@ -347,170 +355,187 @@ export const HostPlaybackPanel = ({ initialSnapshot }: { initialSnapshot: RoomSn
       : 'Playback could not be updated. Check the connection and try again.'
 
   return (
-    <section aria-labelledby='player-title'>
-      <Script
-        src='https://www.youtube.com/iframe_api'
-        strategy='afterInteractive'
-        onReady={initializePlayer}
-        onError={() => setPlayerApiUnavailable(true)}
-      />
-      <div className='flex flex-wrap items-end justify-between gap-3'>
-        <div>
-          <h2 id='player-title' className='text-2xl font-semibold'>
-            Karaoke player
-          </h2>
-          <p className='mt-1 text-sm text-muted-foreground'>
-            {currentItem
-              ? `${currentItem.video.title} — requested by ${currentItem.requester.displayName}`
-              : 'Start when the first singer is ready.'}
-          </p>
+    <div className='grid gap-4 min-[60rem]:h-full min-[60rem]:grid-cols-[minmax(0,7fr)_minmax(18rem,3fr)]'>
+      <section
+        className='min-w-0 min-[60rem]:flex min-[60rem]:items-center'
+        aria-label='Karaoke player'
+      >
+        <Script
+          src='https://www.youtube.com/iframe_api'
+          strategy='afterInteractive'
+          onReady={initializePlayer}
+          onError={() => setPlayerApiUnavailable(true)}
+        />
+        <div className='relative aspect-video w-full min-w-0 overflow-hidden rounded-2xl bg-black'>
+          <div id={playerElementId} className='size-full' />
+          {!currentItem || !isPlayerReady ? (
+            <div className='absolute inset-0 flex items-center justify-center bg-black text-center text-white'>
+              <div className='p-6'>
+                {currentItem && !isPlayerReady && !playerApiUnavailable ? (
+                  <LoaderCircle
+                    aria-hidden='true'
+                    className='mx-auto size-10 animate-spin opacity-70'
+                  />
+                ) : (
+                  <Play aria-hidden='true' className='mx-auto size-10 opacity-70' />
+                )}
+                <p className='mt-3 text-lg font-medium'>
+                  {snapshot.status === 'ended'
+                    ? 'Room ended'
+                    : snapshot.status === 'expired'
+                      ? 'Room expired'
+                      : playerApiUnavailable
+                        ? 'YouTube player unavailable'
+                        : currentItem && !isPlayerReady
+                          ? 'Loading player…'
+                          : hasQueuedItem
+                            ? 'Ready for the first singer'
+                            : 'Waiting for song requests'}
+                </p>
+                <p className='mt-1 text-sm text-white/70'>
+                  {snapshot.status === 'ended'
+                    ? 'Playback is stopped and the room is closed.'
+                    : snapshot.status === 'expired'
+                      ? 'Create a new room to keep singing.'
+                      : playerApiUnavailable
+                        ? 'Check the connection, then retry the player.'
+                        : currentItem && !isPlayerReady
+                          ? 'Connecting to the YouTube player.'
+                          : hasQueuedItem
+                            ? 'Use Start Playback when everyone is ready.'
+                            : 'Guests can scan the room QR code to add songs.'}
+                </p>
+              </div>
+            </div>
+          ) : null}
         </div>
-        <p className='text-xs font-medium tracking-wide text-muted-foreground uppercase'>
-          {isRoomActive ? snapshot.playback.state : snapshot.status}
-        </p>
-      </div>
+      </section>
 
-      <div className='relative mt-4 aspect-video min-h-50 overflow-hidden rounded-2xl bg-black'>
-        <div id={playerElementId} className='size-full' />
-        {!currentItem || !isPlayerReady ? (
-          <div className='absolute inset-0 flex items-center justify-center bg-black text-center text-white'>
-            <div className='p-6'>
-              {currentItem && !isPlayerReady && !playerApiUnavailable ? (
-                <LoaderCircle
-                  aria-hidden='true'
-                  className='mx-auto size-10 animate-spin opacity-70'
-                />
-              ) : (
-                <Play aria-hidden='true' className='mx-auto size-10 opacity-70' />
-              )}
-              <p className='mt-3 text-lg font-medium'>
-                {snapshot.status === 'ended'
-                  ? 'Room ended'
-                  : snapshot.status === 'expired'
-                    ? 'Room expired'
-                    : playerApiUnavailable
-                      ? 'YouTube player unavailable'
-                      : currentItem && !isPlayerReady
-                        ? 'Loading player…'
-                        : hasQueuedItem
-                          ? 'Ready for the first singer'
-                          : 'Waiting for song requests'}
-              </p>
-              <p className='mt-1 text-sm text-white/70'>
-                {snapshot.status === 'ended'
-                  ? 'Playback is stopped and the room is closed.'
-                  : snapshot.status === 'expired'
-                    ? 'Create a new room to keep singing.'
-                    : playerApiUnavailable
-                      ? 'Check the connection, then retry the player.'
-                      : currentItem && !isPlayerReady
-                        ? 'Connecting to the YouTube player.'
-                        : hasQueuedItem
-                          ? 'Use Start Playback when everyone is ready.'
-                          : 'Guests can scan the room QR code to add songs.'}
+      <aside
+        className='space-y-4 min-[60rem]:min-h-0 min-[60rem]:overflow-y-auto min-[60rem]:pr-1'
+        aria-label='Room queue and host actions'
+      >
+        {children}
+
+        <section className='rounded-2xl border border-border p-4' aria-labelledby='player-title'>
+          <div className='flex flex-wrap items-end justify-between gap-3'>
+            <div>
+              <h2 id='player-title' className='text-xl font-semibold'>
+                Playback controls
+              </h2>
+              <p className='mt-1 text-sm text-muted-foreground'>
+                {currentItem
+                  ? `${currentItem.video.title} — requested by ${currentItem.requester.displayName}`
+                  : 'Start when the first singer is ready.'}
               </p>
             </div>
+            <p className='text-xs font-medium tracking-wide text-muted-foreground uppercase'>
+              {isRoomActive ? snapshot.playback.state : snapshot.status}
+            </p>
           </div>
-        ) : null}
-      </div>
 
-      {playerApiUnavailable ? (
-        <Button
-          type='button'
-          variant='outline'
-          className='mt-4 h-12 w-full'
-          onClick={() => window.location.reload()}
-        >
-          <RefreshCw aria-hidden='true' /> Retry YouTube player
-        </Button>
-      ) : null}
+          {playerApiUnavailable ? (
+            <Button
+              type='button'
+              variant='outline'
+              className='mt-4 h-12 w-full'
+              onClick={() => window.location.reload()}
+            >
+              <RefreshCw aria-hidden='true' /> Retry YouTube player
+            </Button>
+          ) : null}
 
-      {isRoomActive && ((hasQueuedItem && !currentItem) || (currentItem && needsInteraction)) ? (
-        <Button
-          type='button'
-          size='lg'
-          className='mt-4 h-12 w-full text-base'
-          disabled={command.isPending || (Boolean(currentItem) && !isPlayerReady)}
-          onClick={startOrPlay}
-        >
-          {command.isPending ? (
-            <LoaderCircle aria-hidden='true' className='animate-spin' />
-          ) : (
-            <Play aria-hidden='true' />
-          )}
-          Start playback
-        </Button>
-      ) : null}
+          {isRoomActive &&
+          ((hasQueuedItem && !currentItem) || (currentItem && needsInteraction)) ? (
+            <Button
+              type='button'
+              size='lg'
+              className='mt-4 h-12 w-full text-base'
+              disabled={command.isPending || (Boolean(currentItem) && !isPlayerReady)}
+              onClick={startOrPlay}
+            >
+              {command.isPending ? (
+                <LoaderCircle aria-hidden='true' className='animate-spin' />
+              ) : (
+                <Play aria-hidden='true' />
+              )}
+              Start playback
+            </Button>
+          ) : null}
 
-      <div className='mt-4 flex flex-wrap items-center gap-2 rounded-xl border border-border p-3'>
-        <Button
-          type='button'
-          variant='outline'
-          className='h-11'
-          disabled={!isRoomActive || !currentItem || !isPlayerReady || command.isPending}
-          onClick={snapshot.playback.state === 'playing' ? pause : startOrPlay}
-        >
-          {snapshot.playback.state === 'playing' ? (
-            <Pause aria-hidden='true' />
-          ) : (
-            <Play aria-hidden='true' />
-          )}
-          {snapshot.playback.state === 'playing' ? 'Pause' : 'Play'}
-        </Button>
-        <Button
-          type='button'
-          variant='outline'
-          className='h-11'
-          disabled={!isRoomActive || !currentItem || !isPlayerReady || command.isPending}
-          onClick={restart}
-        >
-          <RotateCcw aria-hidden='true' /> Restart
-        </Button>
-        <Button
-          type='button'
-          variant='outline'
-          className='h-11'
-          disabled={!isRoomActive || !currentItem || command.isPending}
-          onClick={skip}
-        >
-          <SkipForward aria-hidden='true' /> Skip
-        </Button>
-        <label className='ml-auto flex min-h-11 items-center gap-2 text-sm font-medium'>
-          <Volume2 aria-hidden='true' className='size-4' />
-          <span>Volume</span>
-          <input
-            type='range'
-            min='0'
-            max='100'
-            value={volume}
-            disabled={!isPlayerReady}
-            onChange={(event) => {
-              const nextVolume = Number(event.target.value)
-              setVolume(nextVolume)
-              volumeRef.current = nextVolume
-              playerRef.current?.setVolume(nextVolume)
-            }}
-            className='w-28 accent-primary'
-          />
-          <span className='w-8 text-right tabular-nums'>{volume}</span>
-        </label>
-      </div>
+          <div className='mt-4 flex flex-wrap items-center gap-2'>
+            <Button
+              type='button'
+              variant='outline'
+              className='h-11'
+              disabled={!isRoomActive || !currentItem || !isPlayerReady || command.isPending}
+              onClick={snapshot.playback.state === 'playing' ? pause : startOrPlay}
+            >
+              {snapshot.playback.state === 'playing' ? (
+                <Pause aria-hidden='true' />
+              ) : (
+                <Play aria-hidden='true' />
+              )}
+              {snapshot.playback.state === 'playing' ? 'Pause' : 'Play'}
+            </Button>
+            <Button
+              type='button'
+              variant='outline'
+              className='h-11'
+              disabled={!isRoomActive || !currentItem || !isPlayerReady || command.isPending}
+              onClick={restart}
+            >
+              <RotateCcw aria-hidden='true' /> Restart
+            </Button>
+            <Button
+              type='button'
+              variant='outline'
+              className='h-11'
+              disabled={!isRoomActive || !currentItem || command.isPending}
+              onClick={skip}
+            >
+              <SkipForward aria-hidden='true' /> Skip
+            </Button>
+            <label className='ml-auto flex min-h-11 items-center gap-2 text-sm font-medium'>
+              <Volume2 aria-hidden='true' className='size-4' />
+              <span>Volume</span>
+              <input
+                type='range'
+                min='0'
+                max='100'
+                value={volume}
+                disabled={!isPlayerReady}
+                onChange={(event) => {
+                  const nextVolume = Number(event.target.value)
+                  setVolume(nextVolume)
+                  volumeRef.current = nextVolume
+                  playerRef.current?.setVolume(nextVolume)
+                }}
+                className='w-28 accent-primary'
+              />
+              <span className='w-8 text-right tabular-nums'>{volume}</span>
+            </label>
+          </div>
 
-      {command.isError ? (
-        <p role='alert' className='mt-3 flex items-center gap-2 text-sm text-destructive'>
-          <AlertCircle aria-hidden='true' className='size-4' /> {errorMessage}
-        </p>
-      ) : null}
-      {recoveryMessage ? (
-        <p role='status' className='mt-3 flex items-center gap-2 text-sm text-muted-foreground'>
-          <AlertCircle aria-hidden='true' className='size-4' /> {recoveryMessage}
-        </p>
-      ) : null}
-      {command.isSuccess ? (
-        <p role='status' className='sr-only'>
-          Playback state updated.
-        </p>
-      ) : null}
-    </section>
+          {command.isError ? (
+            <p role='alert' className='mt-3 flex items-center gap-2 text-sm text-destructive'>
+              <AlertCircle aria-hidden='true' className='size-4' /> {errorMessage}
+            </p>
+          ) : null}
+          {recoveryMessage ? (
+            <p role='status' className='mt-3 flex items-center gap-2 text-sm text-muted-foreground'>
+              <AlertCircle aria-hidden='true' className='size-4' /> {recoveryMessage}
+            </p>
+          ) : null}
+          {command.isSuccess ? (
+            <p role='status' className='sr-only'>
+              Playback state updated.
+            </p>
+          ) : null}
+        </section>
+
+        {roomActions}
+      </aside>
+    </div>
   )
 }

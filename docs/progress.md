@@ -4,20 +4,19 @@ Last updated: 2026-08-14
 
 ## Current phase
 
-UI refinement
+UI refinement complete
 
 ## Current
 
-KARA-015 — Home and host-room UI refinement
+No active spec.
 
 ## Last completed
 
-KARA-013 — Privacy, retention, and abuse protection
+KARA-015 — Home and host-room UI refinement
 
 ## Next
 
-Implement and verify the home navbar and full-viewport host-room layout described in
-`docs/specs/KARA-015-home-and-host-room-ui-refinement.md`.
+Review the completed UI refinement and scope any further adjustments.
 
 ## Blockers
 
@@ -174,6 +173,13 @@ performance infrastructure, and the YouTube API project owner.
   KARA-014 is not complete.
 - KARA-015 is a presentation refinement and does not change the PRD. It preserves the existing host
   playback controls and moves them below Invite Singers in the right column.
+- The home page now has a Karaokey wordmark and an accessible external GitHub repository link.
+- The host room now uses the full dynamic viewport at TV widths, hides the duplicate room header,
+  keeps only the YouTube player and its overlays in the left column, and gives the independently
+  scrollable right column the queue, Invite Singers, playback controls, privacy link, and End Room.
+- KARA-015 passed formatting, ESLint, TypeScript, all 37 Node tests, and a production webpack build.
+  The standard Turbopack build could not run in this environment because its internal CSS worker
+  was denied permission to bind a local port.
 - TV testing exposed a browser that reports a 960×540 CSS viewport despite a larger physical
   panel. The host switches to its landscape player/sidebar layout at that width, and the
   idle QR panel becomes compact so the queue and joining details remain visible without an initial
