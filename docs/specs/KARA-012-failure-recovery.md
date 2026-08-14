@@ -20,6 +20,8 @@ Ensure temporary connectivity problems and YouTube search, metadata, or playback
 - Notify host and guests of failed items without exposing sensitive provider details.
 - Restore current state after realtime disconnection without duplicate actions.
 - Return to a usable idle or retry state when external services remain unavailable.
+- Treat browser-blocked autoplay as an expected interaction state rather than a playback failure;
+  stop automatic retries until the host activates Start playback.
 
 ## Acceptance criteria
 
@@ -30,6 +32,8 @@ Ensure temporary connectivity problems and YouTube search, metadata, or playback
 5. Host and guest clients receive a clear failure notification and updated queue state.
 6. A temporary realtime disconnect is visible, retries automatically, and restores a fresh snapshot before live processing resumes.
 7. Persistent YouTube unavailability leaves the application in a stable state with a meaningful retry or host action.
+8. Browser-blocked autoplay exposes one stable Start playback action and does not fail, discard, or
+   repeatedly advance the current queue item.
 
 ## Out of scope
 

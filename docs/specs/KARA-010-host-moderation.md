@@ -17,7 +17,8 @@ Give a valid host the minimum moderation controls needed to keep an event moving
 - Skip the current item and safely advance through the playback lifecycle.
 - End the room through an explicit confirmation flow.
 - Enforce every moderation permission server-side using the host credential.
-- Broadcast moderation results and provide clear feedback to connected clients.
+- Broadcast moderation results and provide clear feedback to connected clients. The host TV may
+  announce terminal activity to assistive technology without reserving persistent visible space.
 - Make repeated or conflicting moderation requests safe.
 
 ## Acceptance criteria
@@ -28,7 +29,9 @@ Give a valid host the minimum moderation controls needed to keep an event moving
 4. A valid host can confirm ending the room, which stops playback and closes the room to subsequent joins and mutations.
 5. Guests and invalid credentials cannot remove other guests' items, skip playback, or end the room through direct requests.
 6. Repeated or concurrent moderation requests cannot corrupt the queue or advance twice.
-7. Connected clients receive the resulting authoritative state and an appropriate status message.
+7. Connected clients receive the resulting authoritative state and an appropriate status message;
+   host-TV terminal activity may be visually omitted when an equivalent assistive announcement is
+   preserved.
 
 ## Out of scope
 

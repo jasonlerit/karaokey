@@ -17,6 +17,8 @@ Define the authoritative queue-item playback state machine and atomically promot
 - Prevent concurrent completion, skip, and failure signals from advancing more than once.
 - Ignore terminal items when selecting the next item.
 - Return the room to idle when no valid queued items remain without ending it.
+- Allow the authenticated host display to request one automatic start when an idle active room
+  gains a queued item; preserve the existing atomic start transition and stable conflict behavior.
 - Broadcast resulting room, current-item, and queue changes.
 
 ## Acceptance criteria
@@ -28,6 +30,8 @@ Define the authoritative queue-item playback state machine and atomically promot
 5. When no valid item remains, the room becomes idle and remains active.
 6. Every successful transition produces a newer authoritative room version for live synchronization.
 7. Invalid transitions return a stable conflict result without corrupting queue state.
+8. Repeated realtime snapshots or multiple automatic-start signals cannot promote more than one
+   item or skip the earliest valid queued item.
 
 ## Out of scope
 

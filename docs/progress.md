@@ -4,11 +4,11 @@ Last updated: 2026-08-14
 
 ## Current phase
 
-UI refinement complete
+Immersive host playback
 
 ## Current
 
-No active spec.
+KARA-016 — Immersive host playback
 
 ## Last completed
 
@@ -16,7 +16,8 @@ KARA-015 — Compact host actions
 
 ## Next
 
-Review the completed compact host controls and three-section sidebar at the 960×540 TV viewport.
+Implement and verify the edge-to-edge 75/25 host layout, black player stage, guarded automatic
+start, assistive-only terminal activity, and denser TV sidebar described in KARA-016.
 
 ## Blockers
 
@@ -184,6 +185,12 @@ performance infrastructure, and the YouTube API project owner.
 - The final KARA-015 sidebar has exactly three primary sections. It removes the application volume
   slider, initializes playback volume at 100%, moves confirmed End Room into the icon-first
   playback row, and retains Privacy inside the Invite Singers dialog.
+- KARA-016 removes the outer host card and padding, uses an approximately 75/25 full-viewport layout,
+  and gives unused aspect-ratio space a black player-stage background rather than stretching or
+  cropping YouTube video.
+- KARA-016 automatically attempts the first idle-to-playing transition once per idle queue state.
+  Browser-blocked autoplay remains recoverable through Start playback and does not trigger repeated
+  starts or discard the current item.
 - The home page now has a Karaokey wordmark and an accessible external GitHub repository link.
 - The host room uses the full dynamic viewport at TV widths, hides the duplicate room header, keeps
   only the YouTube player and its overlays in the left column, and uses a full-height right column

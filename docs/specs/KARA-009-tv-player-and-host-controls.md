@@ -20,6 +20,8 @@ state.
   for subsequent volume changes.
 - Enforce host authorization for server-state-changing commands.
 - Show a prominent Start playback action when autoplay is blocked.
+- Attempt to start the earliest queued item automatically when the host observes an idle active
+  room, with a client guard that suppresses duplicate attempts for the same idle queue state.
 - Translate detectable player play, pause, ended, error, and position events into safe reconciliation requests.
 - Keep guest clients informed of relevant playback state without playing video on their devices.
 - Respect YouTube branding, player, advertising, and content restrictions.
@@ -36,6 +38,8 @@ state.
 7. Restart returns the current video to its beginning without changing queue order or creating a new queue item.
 8. The player initializes at 100% volume without rendering a separate application volume control;
    TV and supported YouTube player volume controls remain available.
+9. The first queued item in an idle active room triggers one automatic start attempt; a blocked
+   autoplay attempt leaves a prominent, operable Start playback fallback.
 
 ## Out of scope
 

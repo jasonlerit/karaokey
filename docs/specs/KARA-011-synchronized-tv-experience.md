@@ -14,14 +14,18 @@ Deliver a legible, landscape-first host display with the current YouTube video o
 
 ## Scope
 
-- Use an approximately 70/30 player-and-queue layout during playback.
+- Use an approximately 75/25 edge-to-edge player-and-queue layout during playback, with a sidebar
+  minimum near 15rem at the 960px TV breakpoint.
+- Use a full-height black player stage so unused space around the largest aspect-correct YouTube
+  player does not appear as white page background.
 - Make the right sidebar a full-height column with exactly three primary sections: persistent
   playback and room-exit controls, an independently scrolling queue, and compact invitation access.
 - Clearly identify the current song and singer and show ordered upcoming songs and singers.
 - Show at least the next three requests when space permits.
 - Keep host playback controls reachable without scrolling the queue.
 - Provide accessible joining-information access through an invitation dialog.
-- Present recent terminal queue activity compactly outside the scrolling upcoming-song list.
+- Preserve assistive announcements for recent terminal queue activity without rendering a
+  persistent previous-song row on the host TV.
 - Provide coherent idle, loading, disconnected, playback-error, ended, and expired states.
 - Optimize legibility and control sizing for 16:9 screens at 1280×720 and above.
 
@@ -36,14 +40,17 @@ Deliver a legible, landscape-first host display with the current YouTube video o
    overflow; playback controls and Invite Singers remain reachable without scrolling the queue.
 6. The room code remains visible, and Invite Singers opens a dismissible QR dialog without
    permanently obscuring playback.
-7. Recent removed, skipped, completed, or failed activity appears as a compact visible status near
-   the playback controls and remains announced to assistive technology rather than appearing under
-   Up Next.
+7. Recent removed, skipped, completed, or failed activity remains announced to assistive technology
+   but does not reserve visible host-TV sidebar space.
 8. Queue and playback changes arrive without manual refresh and stale events do not roll back the view.
 9. Core controls remain usable with keyboard, mouse, touchpad, or a TV-connected touch display.
 10. Idle, offline, error, ended, and expired states are legible and actionable from across a room.
 11. The compact playback section contains icon-first Play/Pause, Restart, Skip, and End Room
     controls; every control has an accessible name, and End Room requires confirmation.
+12. The outer host card, maximum-width constraint, and page padding do not reduce the available TV
+    canvas; the player stage and sidebar occupy the full dynamic viewport.
+13. Playback status text is omitted from the compact control row, and its four controls divide the
+    available row width evenly.
 
 ## Out of scope
 

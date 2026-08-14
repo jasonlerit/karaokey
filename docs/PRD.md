@@ -67,7 +67,8 @@ A participant using a phone. A guest joins using the room QR code or link, choos
 3. The TV enters the room screen and prominently displays the room code and an **Invite singers**
    action.
 4. The host opens the invitation dialog, and guests scan its QR code and begin adding songs.
-5. The host starts playback when the first song is ready, or the room starts it automatically if autoplay is enabled and browser playback rules allow it.
+5. When the first song enters an idle room, the host display automatically attempts to start it.
+   If the browser blocks autoplay, the host uses the displayed **Start playback** action.
 
 ### 7.2 Join from a phone
 
@@ -151,7 +152,9 @@ A participant using a phone. A guest joins using the room QR code or link, choos
   player controls for volume changes.
 - **FR-31:** Only a valid host credential can invoke host-only controls.
 - **FR-32:** When a video completes, the next valid queue item becomes current.
-- **FR-33:** If browser autoplay is blocked, the host sees a prominent **Start playback** control.
+- **FR-33:** When an idle room receives its first queued song, the host display makes one guarded
+  automatic start attempt. If browser autoplay is blocked, the host sees a prominent **Start
+  playback** control.
 - **FR-34:** Playback changes made outside Karaokey's controls, where detectable, reconcile with the server's room state.
 - **FR-35:** When the queue becomes empty, the player returns to an idle state without ending the room.
 
@@ -196,7 +199,10 @@ Recommended fairness and safety defaults:
 
 ### TV layout
 
-- Use a landscape-first two-column layout, with approximately 70% of the width for the video and 30% for the queue.
+- Use an edge-to-edge landscape-first two-column host layout, with approximately 75% of the width
+  for the player and 25% for a compact queue sidebar.
+- Preserve the video's aspect ratio. When the player cannot fill its column height, use a black
+  player-stage background rather than exposing white space or stretching/cropping the video.
 - Keep the current song and singer visible near the player or at the top of the queue.
 - Show at least the next three requests when space permits.
 - Keep core host controls usable with a mouse, touchpad, or TV-connected touch display.
