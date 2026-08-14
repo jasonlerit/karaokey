@@ -4,20 +4,19 @@ Last updated: 2026-08-14
 
 ## Current phase
 
-UI refinement
+UI refinement complete
 
 ## Current
 
-KARA-015 — Compact host actions
+No active spec.
 
 ## Last completed
 
-KARA-015 — 960×540 sidebar stabilization
+KARA-015 — Compact host actions
 
 ## Next
 
-Implement the four-button playback row, fixed 100% initial player volume, three-section sidebar,
-and relocated privacy link described in the reopened KARA-015 spec.
+Review the completed compact host controls and three-section sidebar at the 960×540 TV viewport.
 
 ## Blockers
 
@@ -87,8 +86,9 @@ performance infrastructure, and the YouTube API project owner.
   introduced by the existing room and queue migrations.
 - KARA-009 loads the official YouTube IFrame Player API only on the host room. Guests continue to
   receive playback metadata through realtime snapshots and never load the video player.
-- Host controls provide play, pause, restart, skip, and local volume. Volume is intentionally
-  browser-local and is not written to room state or synchronized to guests.
+- Host controls provide play/pause, restart, skip, and confirmed room exit. The YouTube player
+  initializes at 100% volume; subsequent volume changes use the TV or supported player controls
+  and are not written to room state or synchronized to guests.
 - Autoplay remains browser-driven rather than a room preference. A prominent Start Playback action
   appears when a queued item is ready or the embedded player needs a host interaction.
 - YouTube playing and paused events synchronize state and position against the loaded queue-item
@@ -173,17 +173,17 @@ performance infrastructure, and the YouTube API project owner.
   KARA-014 is not complete.
 - KARA-015 keeps playback controls and compact recent activity above the queue. At TV widths, the
   Shared Queue region consumes the remaining sidebar height and scrolls internally; the compact
-  Invite Singers panel, Privacy, and End Room remain reachable below it.
-- The 960×540 sidebar uses a single icon-first playback and volume row with accessible control
-  names, plus denser queue headings, Now Playing details, and song rows. Explicit flex and overflow
-  boundaries keep long queues inside the Shared Queue scroller instead of overlapping Invite
-  Singers.
+  Invite Singers panel remains reachable below it.
+- The 960×540 sidebar uses an icon-first Play/Pause, Restart, Skip, and End Room row with accessible
+  control names, plus denser queue headings, Now Playing details, and song rows. Explicit flex and
+  overflow boundaries keep long queues inside the Shared Queue scroller instead of overlapping
+  Invite Singers.
 - The host playback client owns its sidebar component tree directly and receives only room values
   and the bound end-room action from the server page, avoiding unstable server-rendered child slots
   during realtime updates and React developer-tool inspection.
-- KARA-015 is reopened to remove the application volume slider, initialize playback volume at 100%,
-  move confirmed End Room into the icon-first playback row, reduce the sidebar to three primary
-  sections, and retain Privacy inside the Invite Singers dialog.
+- The final KARA-015 sidebar has exactly three primary sections. It removes the application volume
+  slider, initializes playback volume at 100%, moves confirmed End Room into the icon-first
+  playback row, and retains Privacy inside the Invite Singers dialog.
 - The home page now has a Karaokey wordmark and an accessible external GitHub repository link.
 - The host room uses the full dynamic viewport at TV widths, hides the duplicate room header, keeps
   only the YouTube player and its overlays in the left column, and uses a full-height right column

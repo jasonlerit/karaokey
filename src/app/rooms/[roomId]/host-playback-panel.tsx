@@ -1,6 +1,5 @@
 'use client'
 
-import Link from 'next/link'
 import Script from 'next/script'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -12,7 +11,6 @@ import {
   RefreshCw,
   RotateCcw,
   SkipForward,
-  Volume2,
 } from 'lucide-react'
 import { z } from 'zod'
 
@@ -118,7 +116,6 @@ export const HostPlaybackPanel = ({
   const advancedItemIdRef = useRef<string | null>(null)
   const lastReportedStateRef = useRef<string | null>(null)
   const mutationRef = useRef<(command: PlaybackCommand) => void>(() => undefined)
-  const volumeRef = useRef(70)
   const apiTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const startupTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const recoveryRetryCountRef = useRef(0)
@@ -127,7 +124,6 @@ export const HostPlaybackPanel = ({
   const [needsInteraction, setNeedsInteraction] = useState(false)
   const [recoveryMessage, setRecoveryMessage] = useState<string>()
   const [playerApiUnavailable, setPlayerApiUnavailable] = useState(false)
-  const [volume, setVolume] = useState(70)
   const { data: snapshot } = useQuery({
     queryKey: roomSnapshotKey(initialSnapshot.roomId),
     queryFn: () => Promise.resolve(initialSnapshot),
@@ -210,7 +206,7 @@ export const HostPlaybackPanel = ({
           if (apiTimerRef.current) clearTimeout(apiTimerRef.current)
           apiTimerRef.current = null
           setPlayerApiUnavailable(false)
-          playerRef.current?.setVolume(volumeRef.current)
+          playerRef.current?.setVolume(100)
           setIsPlayerReady(true)
         },
         onStateChange: ({ data }) => {
@@ -500,26 +496,8 @@ export const HostPlaybackPanel = ({
             >
               <SkipForward aria-hidden='true' /> <span className='min-[60rem]:sr-only'>Skip</span>
             </Button>
-            <label className='ml-1 flex min-h-11 min-w-0 flex-1 items-center gap-1.5 text-xs font-medium'>
-              <Volume2 aria-hidden='true' className='size-4' />
-              <span className='min-[60rem]:sr-only'>Volume</span>
-              <input
-                type='range'
-                min='0'
-                max='100'
-                value={volume}
-                disabled={!isPlayerReady}
-                onChange={(event) => {
-                  const nextVolume = Number(event.target.value)
-                  setVolume(nextVolume)
-                  volumeRef.current = nextVolume
-                  playerRef.current?.setVolume(nextVolume)
-                }}
-                className='min-w-0 flex-1 accent-primary'
-              />
-              <span className='w-7 text-right tabular-nums min-[60rem]:sr-only'>{volume}</span>
-            </label>
-            <span className='hidden text-[0.65rem] font-medium tracking-wide text-muted-foreground uppercase min-[60rem]:block'>
+            <EndRoomControl action={endAction} />
+            <span className='ml-auto hidden text-[0.65rem] font-medium tracking-wide text-muted-foreground uppercase min-[60rem]:block'>
               {isRoomActive ? snapshot.playback.state : snapshot.status}
             </span>
           </div>
@@ -539,24 +517,23 @@ export const HostPlaybackPanel = ({
               Playback state updated.
             </p>
           ) : null}
+          {snapshot.recentActivity ? (
+            <p
+              key={snapshot.recentActivity.id}
+              role='status'
+              aria-live='polite'
+              className='mt-2 truncate text-xs text-muted-foreground'
+            >
+              {snapshot.recentActivity.status === 'removed'
+                ? `${snapshot.recentActivity.videoTitle}, requested by ${snapshot.recentActivity.requesterDisplayName}, was removed.`
+                : snapshot.recentActivity.status === 'skipped'
+                  ? `${snapshot.recentActivity.videoTitle}, requested by ${snapshot.recentActivity.requesterDisplayName}, was skipped.`
+                  : snapshot.recentActivity.status === 'failed'
+                    ? `${snapshot.recentActivity.videoTitle} could not be played.`
+                    : `${snapshot.recentActivity.videoTitle} finished.`}
+            </p>
+          ) : null}
         </section>
-
-        {snapshot.recentActivity ? (
-          <p
-            key={snapshot.recentActivity.id}
-            role='status'
-            aria-live='polite'
-            className='shrink-0 truncate text-xs text-muted-foreground'
-          >
-            {snapshot.recentActivity.status === 'removed'
-              ? `${snapshot.recentActivity.videoTitle}, requested by ${snapshot.recentActivity.requesterDisplayName}, was removed.`
-              : snapshot.recentActivity.status === 'skipped'
-                ? `${snapshot.recentActivity.videoTitle}, requested by ${snapshot.recentActivity.requesterDisplayName}, was skipped.`
-                : snapshot.recentActivity.status === 'failed'
-                  ? `${snapshot.recentActivity.videoTitle} could not be played.`
-                  : `${snapshot.recentActivity.videoTitle} finished.`}
-          </p>
-        ) : null}
 
         <div className='min-w-0 min-[60rem]:min-h-0 min-[60rem]:flex-1 min-[60rem]:overflow-hidden'>
           <RoomSyncPanel initialSnapshot={initialSnapshot} showGuests canModerate display='tv' />
@@ -570,15 +547,6 @@ export const HostPlaybackPanel = ({
             />
           </div>
         ) : null}
-        <div className='flex shrink-0 items-center justify-between gap-4 border-t border-border pt-4'>
-          <Link
-            href='/privacy'
-            className='text-xs text-muted-foreground underline underline-offset-4'
-          >
-            Privacy notice
-          </Link>
-          <EndRoomControl action={endAction} />
-        </div>
       </aside>
     </div>
   )

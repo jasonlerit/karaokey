@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import Link from 'next/link'
 import { Link2, QrCode, Smartphone } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -97,6 +98,13 @@ export const RoomJoiningDisplay = ({
                 </CardDescription>
               </CardContent>
             </Card>
+
+            <p className='text-xs text-muted-foreground'>
+              Anonymous rooms are temporary.{' '}
+              <Link href='/privacy' className='underline underline-offset-4'>
+                Privacy notice
+              </Link>
+            </p>
           </div>
         </DialogContent>
       </Dialog>

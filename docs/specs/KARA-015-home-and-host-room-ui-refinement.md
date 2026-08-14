@@ -2,7 +2,7 @@
 
 ## Status
 
-Reopened for compact host-action refinements.
+Complete.
 
 ## Summary
 
