@@ -22,7 +22,9 @@ export const EndRoomControl = ({ action }: EndRoomControlProps) => {
   return (
     <Dialog>
       <DialogTrigger
-        render={<Button type='button' variant='destructive' className='h-11 min-w-0 px-2.5' />}
+        render={
+          <Button type='button' variant='destructive' className='h-11 w-full min-w-0 px-2.5' />
+        }
       >
         <LogOut aria-hidden='true' /> <span className='min-[60rem]:sr-only'>End room</span>
       </DialogTrigger>

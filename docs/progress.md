@@ -4,20 +4,20 @@ Last updated: 2026-08-14
 
 ## Current phase
 
-Immersive host playback
+UI refinement review
 
 ## Current
 
-KARA-016 — Immersive host playback
+No active implementation
 
 ## Last completed
 
-KARA-015 — Compact host actions
+KARA-016 — Immersive host playback
 
 ## Next
 
-Implement and verify the edge-to-edge 75/25 host layout, black player stage, guarded automatic
-start, assistive-only terminal activity, and denser TV sidebar described in KARA-016.
+Review KARA-016 on the target 960×540 TV viewport and capture any further UI adjustments before
+starting another implementation spec.
 
 ## Blockers
 
@@ -191,6 +191,13 @@ performance infrastructure, and the YouTube API project owner.
 - KARA-016 automatically attempts the first idle-to-playing transition once per idle queue state.
   Browser-blocked autoplay remains recoverable through Start playback and does not trigger repeated
   starts or discard the current item.
+- KARA-016 gives the host an edge-to-edge 75/25 TV layout with a full-height black player stage,
+  four equal playback controls, assistive-only terminal activity, and a denser sidebar whose Shared
+  Queue is the only internally scrolling section.
+- The host playback grid owns an explicit dynamic-viewport height and a bounded grid row at the TV
+  breakpoint, so both the player stage and sidebar stretch to the full screen independently of
+  percentage-height inheritance.
+- KARA-016 passed formatting, ESLint, TypeScript, all 40 Node tests, and a production webpack build.
 - The home page now has a Karaokey wordmark and an accessible external GitHub repository link.
 - The host room uses the full dynamic viewport at TV widths, hides the duplicate room header, keeps
   only the YouTube player and its overlays in the left column, and uses a full-height right column

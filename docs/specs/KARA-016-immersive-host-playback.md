@@ -1,5 +1,9 @@
 # KARA-016 — Immersive host playback
 
+## Status
+
+Complete.
+
 ## Summary
 
 Maximize the YouTube player and usable queue area on the 960×540 host display while automatically

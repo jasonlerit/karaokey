@@ -15,6 +15,7 @@ import {
 import { z } from 'zod'
 
 import type { RoomSnapshot } from '@/common/room-sync-state'
+import { shouldAutomaticallyStartPlayback } from '@/common/automatic-playback'
 import {
   getPlayerRecoveryAction,
   PLAYER_API_TIMEOUT_MS,
@@ -114,6 +115,7 @@ export const HostPlaybackPanel = ({
   const playerRef = useRef<YouTubePlayer | null>(null)
   const loadedItemIdRef = useRef<string | null>(null)
   const advancedItemIdRef = useRef<string | null>(null)
+  const automaticStartItemIdRef = useRef<string | null>(null)
   const lastReportedStateRef = useRef<string | null>(null)
   const mutationRef = useRef<(command: PlaybackCommand) => void>(() => undefined)
   const apiTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -262,8 +264,26 @@ export const HostPlaybackPanel = ({
   const currentItem = snapshot.queue.find(
     (item) => item.id === snapshot.playback.currentItemId && item.status === 'current',
   )
-  const hasQueuedItem = snapshot.queue.some((item) => item.status === 'queued')
+  const firstQueuedItem = snapshot.queue.find((item) => item.status === 'queued')
+  const hasQueuedItem = Boolean(firstQueuedItem)
   const isRoomActive = snapshot.status === 'active'
+
+  useEffect(() => {
+    if (
+      !shouldAutomaticallyStartPlayback({
+        roomStatus: snapshot.status,
+        currentItemId: currentItem?.id,
+        firstQueuedItemId: firstQueuedItem?.id,
+        lastAttemptedItemId: automaticStartItemIdRef.current ?? undefined,
+      })
+    ) {
+      if (!currentItem && !firstQueuedItem) automaticStartItemIdRef.current = null
+      return
+    }
+    if (!firstQueuedItem) return
+    automaticStartItemIdRef.current = firstQueuedItem.id
+    mutationRef.current({ action: 'start' })
+  }, [currentItem, firstQueuedItem, snapshot.status])
 
   useEffect(() => {
     const player = playerRef.current
@@ -359,9 +379,9 @@ export const HostPlaybackPanel = ({
       : 'Playback could not be updated. Check the connection and try again.'
 
   return (
-    <div className='grid gap-4 min-[60rem]:h-full min-[60rem]:grid-cols-[minmax(0,7fr)_minmax(18rem,3fr)]'>
+    <div className='grid gap-3 min-[60rem]:h-dvh min-[60rem]:min-h-0 min-[60rem]:grid-cols-[minmax(0,3fr)_minmax(15rem,1fr)] min-[60rem]:grid-rows-[minmax(0,1fr)] min-[60rem]:gap-0'>
       <section
-        className='min-w-0 min-[60rem]:flex min-[60rem]:items-center'
+        className='min-w-0 overflow-hidden bg-black min-[60rem]:flex min-[60rem]:h-full min-[60rem]:items-center min-[60rem]:justify-center'
         aria-label='Karaoke player'
       >
         <Script
@@ -370,7 +390,7 @@ export const HostPlaybackPanel = ({
           onReady={initializePlayer}
           onError={() => setPlayerApiUnavailable(true)}
         />
-        <div className='relative aspect-video w-full min-w-0 overflow-hidden rounded-2xl bg-black'>
+        <div className='relative aspect-video w-full min-w-0 overflow-hidden rounded-2xl bg-black min-[60rem]:w-[min(100%,calc(100dvh*16/9))] min-[60rem]:rounded-none'>
           <div id={playerElementId} className='size-full' />
           {!currentItem || !isPlayerReady ? (
             <div className='absolute inset-0 flex items-center justify-center bg-black text-center text-white'>
@@ -393,7 +413,7 @@ export const HostPlaybackPanel = ({
                         : currentItem && !isPlayerReady
                           ? 'Loading player…'
                           : hasQueuedItem
-                            ? 'Ready for the first singer'
+                            ? 'Starting the first request…'
                             : 'Waiting for song requests'}
                 </p>
                 <p className='mt-1 text-sm text-white/70'>
@@ -406,7 +426,7 @@ export const HostPlaybackPanel = ({
                         : currentItem && !isPlayerReady
                           ? 'Connecting to the YouTube player.'
                           : hasQueuedItem
-                            ? 'Use Start Playback when everyone is ready.'
+                            ? 'If autoplay is blocked, use Start playback in the controls.'
                             : 'Guests can scan the room QR code to add songs.'}
                 </p>
               </div>
@@ -416,20 +436,17 @@ export const HostPlaybackPanel = ({
       </section>
 
       <aside
-        className='flex flex-col gap-3 min-[60rem]:min-h-0 min-[60rem]:overflow-hidden'
+        className='flex flex-col gap-3 min-[60rem]:min-h-0 min-[60rem]:overflow-hidden min-[60rem]:bg-background min-[60rem]:p-2'
         aria-label='Room queue and host actions'
       >
         <section
           className='shrink-0 rounded-2xl border border-border p-2'
           aria-label='Playback controls'
         >
-          <div className='flex items-center justify-between gap-2 min-[60rem]:hidden'>
+          <div className='min-[60rem]:hidden'>
             <h2 id='player-title' className='font-semibold'>
               Playback controls
             </h2>
-            <p className='text-xs font-medium tracking-wide text-muted-foreground uppercase'>
-              {isRoomActive ? snapshot.playback.state : snapshot.status}
-            </p>
           </div>
 
           {playerApiUnavailable ? (
@@ -461,11 +478,11 @@ export const HostPlaybackPanel = ({
             </Button>
           ) : null}
 
-          <div className='mt-2 flex items-center gap-1.5 min-[60rem]:mt-0'>
+          <div className='mt-2 grid grid-cols-2 gap-1.5 min-[60rem]:mt-0 min-[60rem]:grid-cols-4'>
             <Button
               type='button'
               variant='outline'
-              className='h-11 min-w-0 px-2.5'
+              className='h-11 w-full min-w-0 px-2.5'
               disabled={!isRoomActive || !currentItem || !isPlayerReady || command.isPending}
               onClick={snapshot.playback.state === 'playing' ? pause : startOrPlay}
             >
@@ -481,7 +498,7 @@ export const HostPlaybackPanel = ({
             <Button
               type='button'
               variant='outline'
-              className='h-11 min-w-0 px-2.5'
+              className='h-11 w-full min-w-0 px-2.5'
               disabled={!isRoomActive || !currentItem || !isPlayerReady || command.isPending}
               onClick={restart}
             >
@@ -490,16 +507,13 @@ export const HostPlaybackPanel = ({
             <Button
               type='button'
               variant='outline'
-              className='h-11 min-w-0 px-2.5'
+              className='h-11 w-full min-w-0 px-2.5'
               disabled={!isRoomActive || !currentItem || command.isPending}
               onClick={skip}
             >
               <SkipForward aria-hidden='true' /> <span className='min-[60rem]:sr-only'>Skip</span>
             </Button>
             <EndRoomControl action={endAction} />
-            <span className='ml-auto hidden text-[0.65rem] font-medium tracking-wide text-muted-foreground uppercase min-[60rem]:block'>
-              {isRoomActive ? snapshot.playback.state : snapshot.status}
-            </span>
           </div>
 
           {command.isError ? (
@@ -522,7 +536,7 @@ export const HostPlaybackPanel = ({
               key={snapshot.recentActivity.id}
               role='status'
               aria-live='polite'
-              className='mt-2 truncate text-xs text-muted-foreground'
+              className='sr-only'
             >
               {snapshot.recentActivity.status === 'removed'
                 ? `${snapshot.recentActivity.videoTitle}, requested by ${snapshot.recentActivity.requesterDisplayName}, was removed.`

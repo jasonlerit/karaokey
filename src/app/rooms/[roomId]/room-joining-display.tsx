@@ -28,14 +28,14 @@ export const RoomJoiningDisplay = ({
 }: RoomJoiningDisplayProps) => {
   return (
     <section
-      className='flex items-center justify-between gap-3 rounded-2xl border border-border p-3'
+      className='flex items-center justify-between gap-3 rounded-2xl border border-border p-3 min-[60rem]:p-2'
       aria-labelledby='joining-title'
     >
       <div className='min-w-0'>
-        <h2 id='joining-title' className='text-base font-semibold'>
+        <h2 id='joining-title' className='text-base font-semibold min-[60rem]:text-sm'>
           Invite singers
         </h2>
-        <p className='mt-1 text-sm text-muted-foreground'>
+        <p className='mt-1 text-sm text-muted-foreground min-[60rem]:text-xs'>
           Room <span className='font-semibold tracking-[0.12em] text-foreground'>{roomCode}</span>
         </p>
       </div>
@@ -44,7 +44,7 @@ export const RoomJoiningDisplay = ({
         <DialogTrigger
           render={<Button type='button' variant='outline' className='h-11 shrink-0' />}
         >
-          <QrCode aria-hidden='true' /> Show QR code
+          <QrCode aria-hidden='true' /> <span className='min-[60rem]:sr-only'>Show QR code</span>
         </DialogTrigger>
         <DialogContent className='max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-lg'>
           <DialogHeader>

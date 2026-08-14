@@ -78,19 +78,15 @@ export default async function HostRoomPage({ params }: { params: Promise<{ roomI
   return (
     <main
       data-host-room
-      className='flex min-h-dvh flex-1 items-stretch justify-center p-3 min-[60rem]:h-dvh min-[60rem]:overflow-hidden'
+      className='min-h-dvh flex-1 p-3 min-[60rem]:h-dvh min-[60rem]:overflow-hidden min-[60rem]:p-0'
     >
-      <Card className='min-h-[calc(100dvh-1.5rem)] w-full max-w-400 gap-0 py-0 shadow-sm min-[60rem]:h-[calc(100dvh-1.5rem)]'>
-        <CardContent className='min-h-0 flex-1 p-3'>
-          <HostPlaybackPanel
-            initialSnapshot={initialSnapshot}
-            guestUrl={guestUrl}
-            qrCodeDataUrl={qrCodeDataUrl}
-            roomCode={result.room.roomCode}
-            endAction={endAction}
-          />
-        </CardContent>
-      </Card>
+      <HostPlaybackPanel
+        initialSnapshot={initialSnapshot}
+        guestUrl={guestUrl}
+        qrCodeDataUrl={qrCodeDataUrl}
+        roomCode={result.room.roomCode}
+        endAction={endAction}
+      />
     </main>
   )
 }
