@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { Music2 } from 'lucide-react'
 
 import { createRoomAction } from '@/app/actions'
-import { Button } from '@/components/ui/button'
+import { CreateRoomButton } from '@/app/create-room-button'
 
 const GitHubIcon = () => (
   <svg aria-hidden='true' viewBox='0 0 24 24' className='size-5' fill='currentColor'>
@@ -57,9 +57,7 @@ export default async function Home({
           accounts required.
         </p>
         <form action={createRoomAction} className='mt-8'>
-          <Button size='lg' type='submit' className='min-w-40'>
-            Create room
-          </Button>
+          <CreateRoomButton />
         </form>
         {parameters.error === 'rate_limited' ? (
           <p role='alert' className='mt-4 text-sm text-destructive'>
