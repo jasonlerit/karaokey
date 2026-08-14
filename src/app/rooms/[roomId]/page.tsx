@@ -8,7 +8,7 @@ import { getHostCredential, getHostJoinToken } from '@/common/host-room-session'
 import { createGuestQrCode } from '@/common/qr-code'
 import { getRoomSnapshot } from '@/common/room-sync'
 import { getHostRoom, getRoomByJoinToken, type RoomAccessResult } from '@/common/rooms'
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 
 import { HostPlaybackPanel } from './host-playback-panel'
@@ -43,9 +43,9 @@ const RoomMessage = ({ result }: { result: Exclude<RoomAccessResult, { code: 'ok
           <DoorOpen aria-hidden='true' className='mx-auto mb-5 size-10 text-muted-foreground' />
           <h1 className='text-2xl font-semibold'>{message.title}</h1>
           <p className='mt-3 leading-6 text-muted-foreground'>{message.description}</p>
-          <Button render={<Link href='/' />} className='mt-7'>
+          <Link href='/' className={buttonVariants({ className: 'mt-7' })}>
             Return home
-          </Button>
+          </Link>
         </CardContent>
       </Card>
     </main>
