@@ -87,8 +87,30 @@ export default async function HostRoomPage({ params }: { params: Promise<{ roomI
         <CardContent className='min-h-0 flex-1 p-3'>
           <HostPlaybackPanel
             initialSnapshot={initialSnapshot}
+            queue={
+              <RoomSyncPanel
+                key='queue'
+                initialSnapshot={initialSnapshot}
+                showGuests
+                canModerate
+                display='tv'
+              />
+            }
+            invitation={
+              guestUrl && qrCodeDataUrl ? (
+                <RoomJoiningDisplay
+                  key='invitation'
+                  guestUrl={guestUrl}
+                  qrCodeDataUrl={qrCodeDataUrl}
+                  roomCode={result.room.roomCode}
+                />
+              ) : null
+            }
             roomActions={
-              <div className='flex items-center justify-between gap-4 border-t border-border pt-4'>
+              <div
+                key='room-actions'
+                className='flex shrink-0 items-center justify-between gap-4 border-t border-border pt-4'
+              >
                 <Link
                   href='/privacy'
                   className='text-xs text-muted-foreground underline underline-offset-4'
@@ -98,25 +120,7 @@ export default async function HostRoomPage({ params }: { params: Promise<{ roomI
                 <EndRoomControl action={endAction} />
               </div>
             }
-          >
-            <div className='space-y-4'>
-              <RoomSyncPanel
-                initialSnapshot={initialSnapshot}
-                showGuests
-                canModerate
-                display='tv'
-              />
-
-              {guestUrl && qrCodeDataUrl ? (
-                <RoomJoiningDisplay
-                  guestUrl={guestUrl}
-                  qrCodeDataUrl={qrCodeDataUrl}
-                  roomCode={result.room.roomCode}
-                  initialSnapshot={initialSnapshot}
-                />
-              ) : null}
-            </div>
-          </HostPlaybackPanel>
+          />
         </CardContent>
       </Card>
     </main>

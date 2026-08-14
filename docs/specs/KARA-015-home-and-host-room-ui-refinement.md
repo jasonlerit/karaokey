@@ -2,7 +2,7 @@
 
 ## Status
 
-Reopened for host-sidebar refinements.
+Complete.
 
 ## Summary
 

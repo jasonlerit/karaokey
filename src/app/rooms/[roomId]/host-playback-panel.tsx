@@ -97,11 +97,13 @@ const getPosition = (player: YouTubePlayer | null) =>
 
 export const HostPlaybackPanel = ({
   initialSnapshot,
-  children,
+  queue,
+  invitation,
   roomActions,
 }: {
   initialSnapshot: RoomSnapshot
-  children: ReactNode
+  queue: ReactNode
+  invitation: ReactNode
   roomActions: ReactNode
 }) => {
   const playerElementId = `youtube-player-${initialSnapshot.roomId}`
@@ -412,12 +414,13 @@ export const HostPlaybackPanel = ({
       </section>
 
       <aside
-        className='space-y-4 min-[60rem]:min-h-0 min-[60rem]:overflow-y-auto min-[60rem]:pr-1'
+        className='flex flex-col gap-3 min-[60rem]:min-h-0 min-[60rem]:overflow-hidden'
         aria-label='Room queue and host actions'
       >
-        {children}
-
-        <section className='rounded-2xl border border-border p-4' aria-labelledby='player-title'>
+        <section
+          className='shrink-0 rounded-2xl border border-border p-3'
+          aria-labelledby='player-title'
+        >
           <div className='flex flex-wrap items-end justify-between gap-3'>
             <div>
               <h2 id='player-title' className='text-xl font-semibold'>
@@ -534,6 +537,25 @@ export const HostPlaybackPanel = ({
           ) : null}
         </section>
 
+        {snapshot.recentActivity ? (
+          <p
+            key={snapshot.recentActivity.id}
+            role='status'
+            aria-live='polite'
+            className='shrink-0 text-xs text-muted-foreground'
+          >
+            {snapshot.recentActivity.status === 'removed'
+              ? `${snapshot.recentActivity.videoTitle}, requested by ${snapshot.recentActivity.requesterDisplayName}, was removed.`
+              : snapshot.recentActivity.status === 'skipped'
+                ? `${snapshot.recentActivity.videoTitle}, requested by ${snapshot.recentActivity.requesterDisplayName}, was skipped.`
+                : snapshot.recentActivity.status === 'failed'
+                  ? `${snapshot.recentActivity.videoTitle} could not be played.`
+                  : `${snapshot.recentActivity.videoTitle} finished.`}
+          </p>
+        ) : null}
+
+        <div className='min-[60rem]:min-h-0 min-[60rem]:flex-1'>{queue}</div>
+        <div className='shrink-0'>{invitation}</div>
         {roomActions}
       </aside>
     </div>

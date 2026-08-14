@@ -1,101 +1,90 @@
 'use client'
 
 import Image from 'next/image'
-import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { Eye, EyeOff, Link2, QrCode, Smartphone } from 'lucide-react'
+import { Link2, QrCode, Smartphone } from 'lucide-react'
 
-import type { RoomSnapshot } from '@/common/room-sync-state'
-import { roomSnapshotKey } from '@/components/shared/room-sync-panel'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 
 type RoomJoiningDisplayProps = {
   guestUrl: string
   qrCodeDataUrl: string
   roomCode: string
-  initialSnapshot: RoomSnapshot
 }
 
 export const RoomJoiningDisplay = ({
   guestUrl,
   qrCodeDataUrl,
   roomCode,
-  initialSnapshot,
 }: RoomJoiningDisplayProps) => {
-  const [visibilityOverride, setVisibilityOverride] = useState<boolean | undefined>(undefined)
-  const { data: snapshot } = useQuery({
-    queryKey: roomSnapshotKey(initialSnapshot.roomId),
-    queryFn: () => Promise.resolve(initialSnapshot),
-    initialData: initialSnapshot,
-    staleTime: Infinity,
-  })
-  const isVisible =
-    visibilityOverride ?? (snapshot.status === 'active' && snapshot.playback.currentItemId === null)
-
   return (
-    <section className='rounded-2xl border border-border p-4' aria-labelledby='joining-title'>
-      <div className='flex flex-wrap items-center justify-between gap-3'>
-        <div>
-          <h2 id='joining-title' className='text-xl font-semibold'>
-            Invite singers
-          </h2>
-          <p className='mt-1 text-sm text-muted-foreground'>
-            Guests can join from their phones—no account required.
-          </p>
-        </div>
-        <Button
-          type='button'
-          variant='outline'
-          aria-controls='joining-information'
-          aria-expanded={isVisible}
-          className='h-11'
-          onClick={() => setVisibilityOverride(!isVisible)}
-        >
-          {isVisible ? <EyeOff aria-hidden='true' /> : <Eye aria-hidden='true' />}
-          {isVisible ? 'Hide joining info' : 'Show joining info'}
-        </Button>
+    <section
+      className='flex items-center justify-between gap-3 rounded-2xl border border-border p-3'
+      aria-labelledby='joining-title'
+    >
+      <div className='min-w-0'>
+        <h2 id='joining-title' className='text-base font-semibold'>
+          Invite singers
+        </h2>
+        <p className='mt-1 text-sm text-muted-foreground'>
+          Room <span className='font-semibold tracking-[0.12em] text-foreground'>{roomCode}</span>
+        </p>
       </div>
 
-      {isVisible ? (
-        <div
-          id='joining-information'
-          className='mt-4 space-y-4 rounded-xl bg-muted/40 p-4 min-[60rem]:grid min-[60rem]:grid-cols-[8rem_minmax(0,1fr)] min-[60rem]:items-center min-[60rem]:gap-4 min-[60rem]:space-y-0'
+      <Dialog>
+        <DialogTrigger
+          render={<Button type='button' variant='outline' className='h-11 shrink-0' />}
         >
-          <div className='mx-auto w-full max-w-64 rounded-xl bg-white p-3 shadow-sm min-[60rem]:max-w-32 min-[60rem]:p-2'>
-            <Image
-              src={qrCodeDataUrl}
-              alt='QR code linking to the guest room'
-              width={384}
-              height={384}
-              unoptimized
-              priority
-              className='size-full'
-            />
-          </div>
+          <QrCode aria-hidden='true' /> Show QR code
+        </DialogTrigger>
+        <DialogContent className='max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-lg'>
+          <DialogHeader>
+            <DialogTitle className='text-xl'>Invite singers</DialogTitle>
+            <DialogDescription>
+              Scan the QR code to join room {roomCode}. No account required.
+            </DialogDescription>
+          </DialogHeader>
 
-          <div className='space-y-4 text-center min-[60rem]:space-y-2'>
-            <div>
+          <div className='flex flex-col items-center gap-4'>
+            <div className='w-full max-w-80 rounded-xl bg-white p-3 shadow-sm'>
+              <Image
+                src={qrCodeDataUrl}
+                alt='QR code linking to the guest room'
+                width={384}
+                height={384}
+                unoptimized
+                priority
+                className='size-full'
+              />
+            </div>
+
+            <div className='text-center'>
               <p className='text-sm font-medium tracking-widest text-muted-foreground uppercase'>
                 Room code
               </p>
-              <p className='mt-2 text-4xl font-semibold tracking-[0.18em] min-[60rem]:mt-1 min-[60rem]:text-2xl'>
-                {roomCode}
-              </p>
+              <p className='mt-1 text-3xl font-semibold tracking-[0.18em]'>{roomCode}</p>
             </div>
 
-            <ol className='space-y-3 text-base leading-6 min-[60rem]:space-y-1 min-[60rem]:text-sm min-[60rem]:leading-5'>
-              <li className='flex items-center justify-center gap-3'>
+            <ol className='flex flex-col gap-2 text-sm leading-6'>
+              <li className='flex items-center gap-3'>
                 <QrCode aria-hidden='true' className='size-5 shrink-0 text-primary' />
                 Scan the QR code with a phone camera.
               </li>
-              <li className='flex items-center justify-center gap-3'>
+              <li className='flex items-center gap-3'>
                 <Smartphone aria-hidden='true' className='size-5 shrink-0 text-primary' />
                 Open the link and choose a display name.
               </li>
             </ol>
 
-            <Card size='sm' className='text-left min-[60rem]:hidden'>
+            <Card size='sm' className='w-full text-left'>
               <CardContent>
                 <CardTitle className='flex items-center gap-2'>
                   <Link2 aria-hidden='true' className='size-4' />
@@ -109,8 +98,8 @@ export const RoomJoiningDisplay = ({
               </CardContent>
             </Card>
           </div>
-        </div>
-      ) : null}
+        </DialogContent>
+      </Dialog>
     </section>
   )
 }

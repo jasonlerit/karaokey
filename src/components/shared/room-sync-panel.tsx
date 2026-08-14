@@ -119,7 +119,7 @@ export const RoomSyncPanel = ({
     <section
       className={cn(
         'rounded-xl border border-border text-left',
-        display === 'tv' ? 'p-5' : 'mt-6 p-4',
+        display === 'tv' ? 'flex h-full min-h-0 flex-col p-3' : 'mt-6 p-4',
       )}
       aria-labelledby='shared-queue-title'
     >
@@ -164,7 +164,12 @@ export const RoomSyncPanel = ({
         </p>
       ) : null}
 
-      <div className='mt-4 border-t border-border pt-4'>
+      <div
+        className={cn(
+          'mt-4 border-t border-border pt-4',
+          display === 'tv' && 'flex min-h-0 flex-1 flex-col',
+        )}
+      >
         <h2
           id='shared-queue-title'
           className={cn(
@@ -176,14 +181,24 @@ export const RoomSyncPanel = ({
           Shared queue
         </h2>
         {currentItem ? (
-          <div className='mt-3 rounded-lg border border-primary/20 bg-primary/10 p-3'>
-            <p className='flex items-center gap-2 text-xs font-semibold tracking-wide text-primary uppercase'>
-              <Music2 aria-hidden='true' className='size-4' /> Now playing
+          <div
+            className={cn(
+              'mt-3 rounded-lg border border-primary/20 bg-primary/10',
+              display === 'tv' ? 'p-2' : 'p-3',
+            )}
+          >
+            <p className='flex items-center gap-2 text-[0.65rem] font-semibold tracking-wide text-primary uppercase'>
+              <Music2 aria-hidden='true' className='size-3.5' /> Now playing
             </p>
-            <p className={cn('mt-1 font-medium', display === 'tv' && 'text-lg')}>
+            <p className={cn('mt-1 font-medium', display === 'tv' && 'line-clamp-2 text-sm')}>
               {currentItem.video.title}
             </p>
-            <p className='mt-0.5 text-sm text-muted-foreground'>
+            <p
+              className={cn(
+                'mt-0.5 text-muted-foreground',
+                display === 'tv' ? 'text-xs' : 'text-sm',
+              )}
+            >
               Requested by{' '}
               {currentItem.requester.guestId === viewerGuestId
                 ? 'you'
@@ -195,7 +210,12 @@ export const RoomSyncPanel = ({
         )}
         <p className='mt-4 text-sm font-medium'>Up next</p>
         {upcomingItems.length ? (
-          <ol className='mt-3 space-y-2'>
+          <ol
+            className={cn(
+              'mt-3 space-y-2',
+              display === 'tv' && 'min-h-0 flex-1 overflow-y-auto pr-1',
+            )}
+          >
             {upcomingItems.map((item) => (
               <li
                 key={item.id}
@@ -267,7 +287,7 @@ export const RoomSyncPanel = ({
             : 'The song could not be removed. Refresh the room and try again.'}
         </p>
       ) : null}
-      {snapshot.recentActivity ? (
+      {display !== 'tv' && snapshot.recentActivity ? (
         <p
           key={snapshot.recentActivity.id}
           aria-live='polite'

@@ -4,20 +4,19 @@ Last updated: 2026-08-14
 
 ## Current phase
 
-UI refinement
+UI refinement complete
 
 ## Current
 
-KARA-015 — Host-sidebar refinement
+No active spec.
 
 ## Last completed
 
-KARA-015 — Initial home and host-room UI refinement
+KARA-015 — Home and host-room UI refinement
 
 ## Next
 
-Implement the full-height host sidebar, compact queue presentation, persistent playback controls,
-and QR invitation dialog described in the reopened KARA-015 spec.
+Review the completed host-sidebar refinement and scope any further adjustments.
 
 ## Blockers
 
@@ -44,9 +43,9 @@ performance infrastructure, and the YouTube API project owner.
 - Migration `0003_slow_spitfire.sql` adds room snapshot versions and has been applied to the
   configured database.
 - KARA-004 generates a 384-pixel, high-error-correction QR code on the server containing only the
-  guest URL. The host lobby keeps its room code and joining instructions prominent at TV scale.
-- Joining information uses a keyboard-accessible collapsible panel that is visible while idle and
-  can be hidden later without permanently covering playback.
+  guest URL. The host sidebar keeps the room code and Invite Singers action visible at TV scale.
+- Invite Singers opens the QR code, joining instructions, and guest link in a keyboard-accessible
+  dialog that returns focus to its trigger when dismissed.
 - KARA-005 uses authenticated server routes for official YouTube `search.list` and `videos.list`
   requests. Search is explicitly submitted, uncached, paginated, and appends `karaoke` only when
   the query does not already contain it.
@@ -108,15 +107,14 @@ performance infrastructure, and the YouTube API project owner.
 - Realtime snapshots include the latest terminal queue activity. Connected clients receive a
   visible, assistive status message when a song is removed, skipped, completed, or fails.
 - KARA-010 required no database migration.
-- KARA-011 uses an approximately 70/30 landscape grid at the 1280-pixel TV breakpoint, with the
-  official player and controls on the left and the authoritative current/upcoming queue on the
-  right. Below that breakpoint, the same content stacks without losing keyboard or touch access.
+- KARA-011 uses an approximately 70/30 landscape grid at the TV breakpoint, with only the official
+  player and its overlays on the left and the authoritative queue and host actions on the right.
+  Below that breakpoint, the same content stacks without losing keyboard or touch access.
 - The queue uses explicit Now Playing and position labels, requester names, larger TV typography,
   and touch-sized moderation controls. All upcoming items remain visible, including at least the
   next three when present and space permits.
-- Joining information is contained in the queue sidebar rather than overlaying the player. It is
-  visible by default while idle, collapses automatically when playback begins unless the host has
-  explicitly overridden it, and remains available through a labeled toggle.
+- Joining information opens in a dialog from a compact sidebar panel. The room code and labeled
+  trigger remain visible without taking height away from the queue.
 - The player presents distinct waiting, ready, loading, ended, and expired messages. The live queue
   distinguishes connecting, live, and offline/retrying states in text and gives an actionable
   connection warning without relying on indicator color.
@@ -172,14 +170,13 @@ performance infrastructure, and the YouTube API project owner.
   operational-readiness work remains in place, but the manual browser, device, accessibility,
   performance, and YouTube account-owner gates in `docs/release-readiness.md` have not been run and
   KARA-014 is not complete.
-- KARA-015 initially preserved the existing host playback controls and moved them into the right
-  column. It is reopened to keep those controls above the scrolling queue, compact Now Playing and
-  recent activity, and move the QR code into an invitation dialog. FR-45, KARA-004, and KARA-011
-  were amended to reflect the dialog interaction.
+- KARA-015 keeps playback controls and compact recent activity above the queue. At TV widths, only
+  the upcoming-song list consumes the remaining sidebar height and scrolls; the compact Invite
+  Singers panel, Privacy, and End Room remain reachable below it.
 - The home page now has a Karaokey wordmark and an accessible external GitHub repository link.
-- The host room now uses the full dynamic viewport at TV widths, hides the duplicate room header,
-  keeps only the YouTube player and its overlays in the left column, and gives the independently
-  scrollable right column the queue, Invite Singers, playback controls, privacy link, and End Room.
+- The host room uses the full dynamic viewport at TV widths, hides the duplicate room header, keeps
+  only the YouTube player and its overlays in the left column, and uses a full-height right column
+  with a compact Now Playing treatment and an independently scrolling upcoming-song list.
 - KARA-015 passed formatting, ESLint, TypeScript, all 37 Node tests, and a production webpack build.
   The standard Turbopack build could not run in this environment because its internal CSS worker
   was denied permission to bind a local port.
