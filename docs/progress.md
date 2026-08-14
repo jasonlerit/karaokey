@@ -4,19 +4,20 @@ Last updated: 2026-08-14
 
 ## Current phase
 
-UI refinement complete
+UI refinement
 
 ## Current
 
-No active spec.
+KARA-015 — Compact host actions
 
 ## Last completed
 
-KARA-015 — Home and host-room UI refinement
+KARA-015 — 960×540 sidebar stabilization
 
 ## Next
 
-Review the completed host-sidebar refinement and scope any further adjustments.
+Implement the four-button playback row, fixed 100% initial player volume, three-section sidebar,
+and relocated privacy link described in the reopened KARA-015 spec.
 
 ## Blockers
 
@@ -180,6 +181,9 @@ performance infrastructure, and the YouTube API project owner.
 - The host playback client owns its sidebar component tree directly and receives only room values
   and the bound end-room action from the server page, avoiding unstable server-rendered child slots
   during realtime updates and React developer-tool inspection.
+- KARA-015 is reopened to remove the application volume slider, initialize playback volume at 100%,
+  move confirmed End Room into the icon-first playback row, reduce the sidebar to three primary
+  sections, and retain Privacy inside the Invite Singers dialog.
 - The home page now has a Karaokey wordmark and an accessible external GitHub repository link.
 - The host room uses the full dynamic viewport at TV widths, hides the duplicate room header, keeps
   only the YouTube player and its overlays in the left column, and uses a full-height right column

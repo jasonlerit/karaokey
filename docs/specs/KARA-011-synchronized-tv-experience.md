@@ -15,8 +15,8 @@ Deliver a legible, landscape-first host display with the current YouTube video o
 ## Scope
 
 - Use an approximately 70/30 player-and-queue layout during playback.
-- Make the right sidebar a full-height column with persistent playback controls, invitation access,
-  and room actions around an independently scrolling queue region.
+- Make the right sidebar a full-height column with exactly three primary sections: persistent
+  playback and room-exit controls, an independently scrolling queue, and compact invitation access.
 - Clearly identify the current song and singer and show ordered upcoming songs and singers.
 - Show at least the next three requests when space permits.
 - Keep host playback controls reachable without scrolling the queue.
@@ -33,8 +33,7 @@ Deliver a legible, landscape-first host display with the current YouTube video o
 4. The Now Playing treatment remains compact enough that it does not dominate the available queue
    height.
 5. The queue consumes the sidebar's remaining height and scrolls internally when its contents
-   overflow; playback controls, Invite Singers, Privacy, and End Room remain reachable without
-   scrolling the queue.
+   overflow; playback controls and Invite Singers remain reachable without scrolling the queue.
 6. The room code remains visible, and Invite Singers opens a dismissible QR dialog without
    permanently obscuring playback.
 7. Recent removed, skipped, completed, or failed activity appears as a compact visible status near
@@ -43,6 +42,8 @@ Deliver a legible, landscape-first host display with the current YouTube video o
 8. Queue and playback changes arrive without manual refresh and stale events do not roll back the view.
 9. Core controls remain usable with keyboard, mouse, touchpad, or a TV-connected touch display.
 10. Idle, offline, error, ended, and expired states are legible and actionable from across a room.
+11. The compact playback section contains icon-first Play/Pause, Restart, Skip, and End Room
+    controls; every control has an accessible name, and End Room requires confirmation.
 
 ## Out of scope
 

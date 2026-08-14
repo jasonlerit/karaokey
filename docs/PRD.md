@@ -146,7 +146,9 @@ A participant using a phone. A guest joins using the room QR code or link, choos
 ### 8.5 Playback and host controls
 
 - **FR-29:** The host screen embeds the current video using the supported YouTube player integration.
-- **FR-30:** Host controls include play, pause, restart, skip, and volume.
+- **FR-30:** Application host controls include play/pause, restart, skip, and confirmed room exit.
+  The embedded player initializes at 100% volume; the host uses the TV or the supported YouTube
+  player controls for volume changes.
 - **FR-31:** Only a valid host credential can invoke host-only controls.
 - **FR-32:** When a video completes, the next valid queue item becomes current.
 - **FR-33:** If browser autoplay is blocked, the host sees a prominent **Start playback** control.

@@ -2,7 +2,7 @@
 
 ## Status
 
-Complete.
+Reopened for compact host-action refinements.
 
 ## Summary
 
@@ -29,8 +29,10 @@ actions on the right.
 - Keep the left column focused on the YouTube player and its required loading, idle, unavailable,
   and terminal overlays.
 - Make the right sidebar a full-height flex column at TV widths.
-- Keep current-song details, playback status, Start Playback, Play/Pause, Restart, Skip, Volume, and
-  playback feedback above the queue so the host does not scroll to reach playback controls.
+- Keep playback status, Start Playback, playback feedback, and an icon-first row containing
+  Play/Pause, Restart, Skip, and End Room above the queue so the host does not scroll to reach core
+  controls.
+- Initialize the YouTube player at 100% volume and remove the separate application volume slider.
 - Reduce the Now Playing typography and spacing so it does not consume a disproportionate share of
   the queue region.
 - Give the Shared Queue region the sidebar's remaining height and scroll its contents internally
@@ -39,7 +41,9 @@ actions on the right.
   status near the playback controls.
 - Replace the expanded Invite Singers content with a compact panel that keeps the room code visible
   and opens the QR code and joining instructions in an accessible dialog.
-- Keep Invite Singers, Privacy, and End Room reachable outside the queue's scrolling region.
+- Move the privacy-notice link into the Invite Singers dialog.
+- Limit the TV sidebar to three primary sections: Playback Controls, Shared Queue, and Invite
+  Singers.
 - Preserve a player-first stacked layout on narrow viewports.
 
 ## Acceptance criteria
@@ -53,21 +57,24 @@ actions on the right.
    information and the room code remain available in the right column.
 5. The left column contains the YouTube player without separate playback details or control rows
    around it, while required player overlays remain legible and actionable.
-6. At TV widths, the right column fills the available height and keeps playback controls at the top,
-   followed by compact recent activity when present, an internally scrolling queue that consumes
-   the remaining height, compact invitation access, and the final Privacy and End Room actions.
-7. Play/Pause, Restart, Skip, Volume, conditional Start Playback, recovery, and host authorization
-   behavior continue to satisfy KARA-009.
-8. The host room retains an accessible privacy-notice link without increasing the TV layout beyond
-   the dynamic viewport height.
-9. The Now Playing treatment uses compact typography and spacing, while recent terminal activity is
-   not rendered as part of the Up Next list.
-10. Existing idle, active, loading, offline, playback-error, ended, and expired states remain clear
+6. At TV widths, the right column fills the available height with exactly three primary sections:
+   playback controls at the top, followed by an internally scrolling queue that consumes the
+   remaining height, and compact invitation access at the bottom.
+7. The playback row contains four icon-first controls in this order: Play/Pause, Restart, Skip, and
+   End Room. Each has an accessible name, and End Room requires confirmation before changing room
+   state.
+8. The player initializes at 100% volume without a separate application volume slider; TV and
+   supported YouTube player controls remain available for volume adjustment.
+9. The Invite Singers dialog contains the host room's accessible privacy-notice link without
+   increasing the sidebar beyond the dynamic viewport height.
+10. The Now Playing treatment uses compact typography and spacing, while recent terminal activity is
+    not rendered as part of the Up Next list.
+11. Existing idle, active, loading, offline, playback-error, ended, and expired states remain clear
     after the layout changes.
-11. The compact Invite Singers panel keeps the room code visible and opens a dialog containing a
+12. The compact Invite Singers panel keeps the room code visible and opens a dialog containing a
     large QR code and concise instructions; the dialog traps focus, closes with standard keyboard
     interactions, and restores focus to its trigger.
-12. On narrow viewports, the player appears before the sidebar content, with no loss of keyboard or
+13. On narrow viewports, the player appears before the sidebar content, with no loss of keyboard or
     touch access and no forced full-height queue region.
 
 ## Out of scope
@@ -75,7 +82,7 @@ actions on the right.
 - A custom logo or other new brand assets.
 - Changes to room, queue, playback, moderation, or authorization behavior.
 - Changes to guest joining, song search, or queue layouts.
-- Removal of any host playback capability required by KARA-009.
+- Removal of any host playback or room-exit capability required by KARA-009.
 - Formal release-candidate validation deferred under KARA-014.
 
 ## PRD traceability

@@ -31,6 +31,8 @@ Protect anonymous rooms with data minimization, server-side validation and autho
 5. Expired room-domain data is deleted or anonymized within the configured and documented period.
 6. Authorization tests prove guests cannot invoke host controls or remove another guest's queued items.
 7. A publicly accessible privacy notice accurately describes collected data, retention, operational logs, and YouTube processing.
+8. Every application screen retains a discoverable privacy-notice link; the host room may place
+   that link inside its Invite Singers dialog to preserve TV layout space.
 
 ## Out of scope
 
