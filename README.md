@@ -1,9 +1,8 @@
 # Karaokey
 
-[![Spec-driven](https://img.shields.io/badge/development-spec--driven-2563eb)](https://github.com/jasonlerit/karaokey/tree/main/docs)
-[![Vibe coded](https://img.shields.io/badge/built%20with-vibe%20coding-8b5cf6)](https://github.com/jasonlerit/karaokey)
-
-Developed through an AI-assisted, human-reviewed workflow from PRD to specifications and implementation.
+![Spec-driven](https://img.shields.io/badge/development-spec--driven-2563eb)
+![Vibe coded](https://img.shields.io/badge/built%20with-vibe%20coding-8b5cf6)
+![Human code: none](https://img.shields.io/badge/human%20code-none-f97316)
 
 An anonymous, browser-based karaoke queue for in-person gatherings.
 
