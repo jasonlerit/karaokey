@@ -4,19 +4,20 @@ Last updated: 2026-08-14
 
 ## Current phase
 
-UI refinement complete
+UI refinement
 
 ## Current
 
-No active spec.
+KARA-015 — Host-sidebar refinement
 
 ## Last completed
 
-KARA-015 — Home and host-room UI refinement
+KARA-015 — Initial home and host-room UI refinement
 
 ## Next
 
-Review the completed UI refinement and scope any further adjustments.
+Implement the full-height host sidebar, compact queue presentation, persistent playback controls,
+and QR invitation dialog described in the reopened KARA-015 spec.
 
 ## Blockers
 
@@ -171,8 +172,10 @@ performance infrastructure, and the YouTube API project owner.
   operational-readiness work remains in place, but the manual browser, device, accessibility,
   performance, and YouTube account-owner gates in `docs/release-readiness.md` have not been run and
   KARA-014 is not complete.
-- KARA-015 is a presentation refinement and does not change the PRD. It preserves the existing host
-  playback controls and moves them below Invite Singers in the right column.
+- KARA-015 initially preserved the existing host playback controls and moved them into the right
+  column. It is reopened to keep those controls above the scrolling queue, compact Now Playing and
+  recent activity, and move the QR code into an invitation dialog. FR-45, KARA-004, and KARA-011
+  were amended to reflect the dialog interaction.
 - The home page now has a Karaokey wordmark and an accessible external GitHub repository link.
 - The host room now uses the full dynamic viewport at TV widths, hides the duplicate room header,
   keeps only the YouTube player and its overlays in the left column, and gives the independently

@@ -64,8 +64,9 @@ A participant using a phone. A guest joins using the room QR code or link, choos
 
 1. The host opens Karaokey on the TV and selects **Create room**.
 2. The system creates a room with a short room code, guest URL, QR code, and temporary host credential.
-3. The TV enters the room screen and prominently displays join instructions while the queue is empty.
-4. Guests scan the QR code and begin adding songs.
+3. The TV enters the room screen and prominently displays the room code and an **Invite singers**
+   action.
+4. The host opens the invitation dialog, and guests scan its QR code and begin adding songs.
 5. The host starts playback when the first song is ready, or the room starts it automatically if autoplay is enabled and browser playback rules allow it.
 
 ### 7.2 Join from a phone
@@ -166,7 +167,8 @@ A participant using a phone. A guest joins using the room QR code or link, choos
 - **FR-42:** The queue panel shows the current singer, upcoming singers, song titles, and clear ordering.
 - **FR-43:** The QR code and room code remain accessible without permanently obscuring playback; they may appear in the queue panel or a host-triggered overlay.
 - **FR-44:** The interface remains legible at common 16:9 TV resolutions and from across a room.
-- **FR-45:** An idle room prominently displays the QR code, room code, and simple joining instructions.
+- **FR-45:** An idle room prominently displays the room code and an **Invite singers** action that
+  opens a dialog with a large QR code and simple joining instructions.
 
 ### 8.8 Guest mobile experience
 

@@ -1,5 +1,9 @@
 # KARA-015 — Home and host-room UI refinement
 
+## Status
+
+Reopened for host-sidebar refinements.
+
 ## Summary
 
 Refine the home and host-room layouts so the landing page has lightweight product navigation and
@@ -24,9 +28,18 @@ actions on the right.
 - Remove the duplicated host-room heading and room-code summary above the main two-column layout.
 - Keep the left column focused on the YouTube player and its required loading, idle, unavailable,
   and terminal overlays.
-- Move the current-song details, playback status, Start Playback action, Play/Pause, Restart, Skip,
-  Volume, and playback feedback below the Invite Singers panel in the right column.
-- Keep End Room at the bottom of the right column.
+- Make the right sidebar a full-height flex column at TV widths.
+- Keep current-song details, playback status, Start Playback, Play/Pause, Restart, Skip, Volume, and
+  playback feedback above the queue so the host does not scroll to reach playback controls.
+- Reduce the Now Playing typography and spacing so it does not consume a disproportionate share of
+  the queue region.
+- Give the queue the sidebar's remaining height and scroll only its upcoming-song region when
+  needed.
+- Move recent terminal activity out of Up Next and present it as a compact visible and assistive
+  status near the playback controls.
+- Replace the expanded Invite Singers content with a compact panel that keeps the room code visible
+  and opens the QR code and joining instructions in an accessible dialog.
+- Keep Invite Singers, Privacy, and End Room reachable outside the queue's scrolling region.
 - Preserve a player-first stacked layout on narrow viewports.
 
 ## Acceptance criteria
@@ -40,16 +53,22 @@ actions on the right.
    information and the room code remain available in the right column.
 5. The left column contains the YouTube player without separate playback details or control rows
    around it, while required player overlays remain legible and actionable.
-6. The right column places playback details, status, controls, and feedback immediately below the
-   Invite Singers panel and keeps End Room after the other room actions.
+6. At TV widths, the right column fills the available height and keeps playback controls at the top,
+   followed by compact recent activity when present, a queue that consumes the remaining height,
+   compact invitation access, and the final Privacy and End Room actions.
 7. Play/Pause, Restart, Skip, Volume, conditional Start Playback, recovery, and host authorization
    behavior continue to satisfy KARA-009.
 8. The host room retains an accessible privacy-notice link without increasing the TV layout beyond
    the dynamic viewport height.
-9. On narrow viewports, the player appears before the queue, invitation panel, playback controls,
-   and end-room action, with no loss of keyboard or touch access.
+9. The Now Playing treatment uses compact typography and spacing, while recent terminal activity is
+   not rendered as part of the Up Next list.
 10. Existing idle, active, loading, offline, playback-error, ended, and expired states remain clear
     after the layout changes.
+11. The compact Invite Singers panel keeps the room code visible and opens a dialog containing a
+    large QR code and concise instructions; the dialog traps focus, closes with standard keyboard
+    interactions, and restores focus to its trigger.
+12. On narrow viewports, the player appears before the sidebar content, with no loss of keyboard or
+    touch access and no forced full-height queue region.
 
 ## Out of scope
 
@@ -61,5 +80,5 @@ actions on the right.
 
 ## PRD traceability
 
-This spec refines the presentation of existing requirements without changing the PRD. It preserves
-FR-29–FR-35, FR-41–FR-45, the TV UX requirements, and MVP acceptance criteria 4 and 6.
+This spec refines FR-45 while preserving FR-29–FR-35, FR-41–FR-44, the TV UX requirements, and MVP
+acceptance criteria 4 and 6.
