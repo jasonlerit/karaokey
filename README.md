@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Karaokey
 
-## Getting Started
+[![AI-assisted](https://img.shields.io/badge/built%20with-AI--assisted%20vibe%20coding-8b5cf6)](https://github.com/jasonlerit/karaokey)
 
-First, run the development server:
+An anonymous, browser-based karaoke queue for in-person gatherings.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Hosts create a room on a TV, while guests scan a QR code to join, search YouTube, and add songs from their phones—no accounts required.
+
+## Features
+
+- QR code room joining
+- YouTube karaoke search and playback
+- Real-time shared queue
+- Host playback and moderation controls
+- Mobile-friendly guest experience
+- Temporary, privacy-conscious sessions
+
+## Getting started
+
+1. Install dependencies:
+
+   ```sh
+   npm install
+   ```
+
+2. Copy `.env.example` to `.env` and configure the required values.
+
+3. Run database migrations:
+
+   ```sh
+   npm run db:migrate
+   ```
+
+4. Start the development server:
+
+   ```sh
+   npm run dev
+   ```
+
+Open [http://localhost:3000](http://localhost:3000).
+
+## Checks
+
+```sh
+npm run check
+npm test
+npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Status
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Karaokey is currently a personal project and is not yet production-ready.
