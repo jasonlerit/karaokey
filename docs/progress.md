@@ -197,6 +197,9 @@ performance infrastructure, and the YouTube API project owner.
 - The host playback grid owns an explicit dynamic-viewport height and a bounded grid row at the TV
   breakpoint, so both the player stage and sidebar stretch to the full screen independently of
   percentage-height inheritance.
+- On wider layouts, Invite Singers uses a compact two-column dialog with a 12rem QR code so its room
+  code, instructions, guest link, and privacy notice fit within the 960×540 viewport even when
+  browser tooling reduces the effective width; overflow scrolling remains a small-screen fallback.
 - KARA-016 passed formatting, ESLint, TypeScript, all 40 Node tests, and a production webpack build.
 - The home page now has a Karaokey wordmark and an accessible external GitHub repository link.
 - The host room uses the full dynamic viewport at TV widths, hides the duplicate room header, keeps
