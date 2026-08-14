@@ -33,8 +33,8 @@ actions on the right.
   playback feedback above the queue so the host does not scroll to reach playback controls.
 - Reduce the Now Playing typography and spacing so it does not consume a disproportionate share of
   the queue region.
-- Give the queue the sidebar's remaining height and scroll only its upcoming-song region when
-  needed.
+- Give the Shared Queue region the sidebar's remaining height and scroll its contents internally
+  when needed.
 - Move recent terminal activity out of Up Next and present it as a compact visible and assistive
   status near the playback controls.
 - Replace the expanded Invite Singers content with a compact panel that keeps the room code visible
@@ -54,8 +54,8 @@ actions on the right.
 5. The left column contains the YouTube player without separate playback details or control rows
    around it, while required player overlays remain legible and actionable.
 6. At TV widths, the right column fills the available height and keeps playback controls at the top,
-   followed by compact recent activity when present, a queue that consumes the remaining height,
-   compact invitation access, and the final Privacy and End Room actions.
+   followed by compact recent activity when present, an internally scrolling queue that consumes
+   the remaining height, compact invitation access, and the final Privacy and End Room actions.
 7. Play/Pause, Restart, Skip, Volume, conditional Start Playback, recovery, and host authorization
    behavior continue to satisfy KARA-009.
 8. The host room retains an accessible privacy-notice link without increasing the TV layout beyond

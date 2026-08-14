@@ -170,9 +170,16 @@ performance infrastructure, and the YouTube API project owner.
   operational-readiness work remains in place, but the manual browser, device, accessibility,
   performance, and YouTube account-owner gates in `docs/release-readiness.md` have not been run and
   KARA-014 is not complete.
-- KARA-015 keeps playback controls and compact recent activity above the queue. At TV widths, only
-  the upcoming-song list consumes the remaining sidebar height and scrolls; the compact Invite
-  Singers panel, Privacy, and End Room remain reachable below it.
+- KARA-015 keeps playback controls and compact recent activity above the queue. At TV widths, the
+  Shared Queue region consumes the remaining sidebar height and scrolls internally; the compact
+  Invite Singers panel, Privacy, and End Room remain reachable below it.
+- The 960×540 sidebar uses a single icon-first playback and volume row with accessible control
+  names, plus denser queue headings, Now Playing details, and song rows. Explicit flex and overflow
+  boundaries keep long queues inside the Shared Queue scroller instead of overlapping Invite
+  Singers.
+- The host playback client owns its sidebar component tree directly and receives only room values
+  and the bound end-room action from the server page, avoiding unstable server-rendered child slots
+  during realtime updates and React developer-tool inspection.
 - The home page now has a Karaokey wordmark and an accessible external GitHub repository link.
 - The host room uses the full dynamic viewport at TV widths, hides the duplicate room header, keeps
   only the YouTube player and its overlays in the left column, and uses a full-height right column

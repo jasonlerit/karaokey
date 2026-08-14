@@ -8,13 +8,10 @@ import { getHostCredential, getHostJoinToken } from '@/common/host-room-session'
 import { createGuestQrCode } from '@/common/qr-code'
 import { getRoomSnapshot } from '@/common/room-sync'
 import { getHostRoom, getRoomByJoinToken, type RoomAccessResult } from '@/common/rooms'
-import { RoomSyncPanel } from '@/components/shared/room-sync-panel'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 
-import { EndRoomControl } from './end-room-control'
 import { HostPlaybackPanel } from './host-playback-panel'
-import { RoomJoiningDisplay } from './room-joining-display'
 
 const roomIdSchema = z.uuid()
 
@@ -87,39 +84,10 @@ export default async function HostRoomPage({ params }: { params: Promise<{ roomI
         <CardContent className='min-h-0 flex-1 p-3'>
           <HostPlaybackPanel
             initialSnapshot={initialSnapshot}
-            queue={
-              <RoomSyncPanel
-                key='queue'
-                initialSnapshot={initialSnapshot}
-                showGuests
-                canModerate
-                display='tv'
-              />
-            }
-            invitation={
-              guestUrl && qrCodeDataUrl ? (
-                <RoomJoiningDisplay
-                  key='invitation'
-                  guestUrl={guestUrl}
-                  qrCodeDataUrl={qrCodeDataUrl}
-                  roomCode={result.room.roomCode}
-                />
-              ) : null
-            }
-            roomActions={
-              <div
-                key='room-actions'
-                className='flex shrink-0 items-center justify-between gap-4 border-t border-border pt-4'
-              >
-                <Link
-                  href='/privacy'
-                  className='text-xs text-muted-foreground underline underline-offset-4'
-                >
-                  Privacy notice
-                </Link>
-                <EndRoomControl action={endAction} />
-              </div>
-            }
+            guestUrl={guestUrl}
+            qrCodeDataUrl={qrCodeDataUrl}
+            roomCode={result.room.roomCode}
+            endAction={endAction}
           />
         </CardContent>
       </Card>

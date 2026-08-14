@@ -32,7 +32,7 @@ Deliver a legible, landscape-first host display with the current YouTube video o
 3. Upcoming items display clear order, title, and requester, with at least three visible when available and space permits.
 4. The Now Playing treatment remains compact enough that it does not dominate the available queue
    height.
-5. The queue consumes the sidebar's remaining height and scrolls independently when its contents
+5. The queue consumes the sidebar's remaining height and scrolls internally when its contents
    overflow; playback controls, Invite Singers, Privacy, and End Room remain reachable without
    scrolling the queue.
 6. The room code remains visible, and Invite Singers opens a dismissible QR dialog without

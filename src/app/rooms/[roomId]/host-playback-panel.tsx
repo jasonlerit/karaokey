@@ -1,7 +1,8 @@
 'use client'
 
+import Link from 'next/link'
 import Script from 'next/script'
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import {
   AlertCircle,
@@ -22,8 +23,11 @@ import {
   PLAYER_START_TIMEOUT_MS,
 } from '@/common/playback-recovery'
 import { getYouTubePlayerAction } from '@/common/youtube-player-state'
-import { roomSnapshotKey } from '@/components/shared/room-sync-panel'
+import { RoomSyncPanel, roomSnapshotKey } from '@/components/shared/room-sync-panel'
 import { Button } from '@/components/ui/button'
+
+import { EndRoomControl } from './end-room-control'
+import { RoomJoiningDisplay } from './room-joining-display'
 
 type PlaybackCommand =
   | { action: 'start' }
@@ -97,14 +101,16 @@ const getPosition = (player: YouTubePlayer | null) =>
 
 export const HostPlaybackPanel = ({
   initialSnapshot,
-  queue,
-  invitation,
-  roomActions,
+  guestUrl,
+  qrCodeDataUrl,
+  roomCode,
+  endAction,
 }: {
   initialSnapshot: RoomSnapshot
-  queue: ReactNode
-  invitation: ReactNode
-  roomActions: ReactNode
+  guestUrl?: string
+  qrCodeDataUrl?: string
+  roomCode: string
+  endAction: () => Promise<void>
 }) => {
   const playerElementId = `youtube-player-${initialSnapshot.roomId}`
   const playerRef = useRef<YouTubePlayer | null>(null)
@@ -418,20 +424,13 @@ export const HostPlaybackPanel = ({
         aria-label='Room queue and host actions'
       >
         <section
-          className='shrink-0 rounded-2xl border border-border p-3'
-          aria-labelledby='player-title'
+          className='shrink-0 rounded-2xl border border-border p-2'
+          aria-label='Playback controls'
         >
-          <div className='flex flex-wrap items-end justify-between gap-3'>
-            <div>
-              <h2 id='player-title' className='text-xl font-semibold'>
-                Playback controls
-              </h2>
-              <p className='mt-1 text-sm text-muted-foreground'>
-                {currentItem
-                  ? `${currentItem.video.title} — requested by ${currentItem.requester.displayName}`
-                  : 'Start when the first singer is ready.'}
-              </p>
-            </div>
+          <div className='flex items-center justify-between gap-2 min-[60rem]:hidden'>
+            <h2 id='player-title' className='font-semibold'>
+              Playback controls
+            </h2>
             <p className='text-xs font-medium tracking-wide text-muted-foreground uppercase'>
               {isRoomActive ? snapshot.playback.state : snapshot.status}
             </p>
@@ -441,7 +440,7 @@ export const HostPlaybackPanel = ({
             <Button
               type='button'
               variant='outline'
-              className='mt-4 h-12 w-full'
+              className='mt-2 h-11 w-full'
               onClick={() => window.location.reload()}
             >
               <RefreshCw aria-hidden='true' /> Retry YouTube player
@@ -453,7 +452,7 @@ export const HostPlaybackPanel = ({
             <Button
               type='button'
               size='lg'
-              className='mt-4 h-12 w-full text-base'
+              className='mt-2 h-11 w-full'
               disabled={command.isPending || (Boolean(currentItem) && !isPlayerReady)}
               onClick={startOrPlay}
             >
@@ -466,11 +465,11 @@ export const HostPlaybackPanel = ({
             </Button>
           ) : null}
 
-          <div className='mt-4 flex flex-wrap items-center gap-2'>
+          <div className='mt-2 flex items-center gap-1.5 min-[60rem]:mt-0'>
             <Button
               type='button'
               variant='outline'
-              className='h-11'
+              className='h-11 min-w-0 px-2.5'
               disabled={!isRoomActive || !currentItem || !isPlayerReady || command.isPending}
               onClick={snapshot.playback.state === 'playing' ? pause : startOrPlay}
             >
@@ -479,29 +478,31 @@ export const HostPlaybackPanel = ({
               ) : (
                 <Play aria-hidden='true' />
               )}
-              {snapshot.playback.state === 'playing' ? 'Pause' : 'Play'}
+              <span className='min-[60rem]:sr-only'>
+                {snapshot.playback.state === 'playing' ? 'Pause' : 'Play'}
+              </span>
             </Button>
             <Button
               type='button'
               variant='outline'
-              className='h-11'
+              className='h-11 min-w-0 px-2.5'
               disabled={!isRoomActive || !currentItem || !isPlayerReady || command.isPending}
               onClick={restart}
             >
-              <RotateCcw aria-hidden='true' /> Restart
+              <RotateCcw aria-hidden='true' /> <span className='min-[60rem]:sr-only'>Restart</span>
             </Button>
             <Button
               type='button'
               variant='outline'
-              className='h-11'
+              className='h-11 min-w-0 px-2.5'
               disabled={!isRoomActive || !currentItem || command.isPending}
               onClick={skip}
             >
-              <SkipForward aria-hidden='true' /> Skip
+              <SkipForward aria-hidden='true' /> <span className='min-[60rem]:sr-only'>Skip</span>
             </Button>
-            <label className='ml-auto flex min-h-11 items-center gap-2 text-sm font-medium'>
+            <label className='ml-1 flex min-h-11 min-w-0 flex-1 items-center gap-1.5 text-xs font-medium'>
               <Volume2 aria-hidden='true' className='size-4' />
-              <span>Volume</span>
+              <span className='min-[60rem]:sr-only'>Volume</span>
               <input
                 type='range'
                 min='0'
@@ -514,10 +515,13 @@ export const HostPlaybackPanel = ({
                   volumeRef.current = nextVolume
                   playerRef.current?.setVolume(nextVolume)
                 }}
-                className='w-28 accent-primary'
+                className='min-w-0 flex-1 accent-primary'
               />
-              <span className='w-8 text-right tabular-nums'>{volume}</span>
+              <span className='w-7 text-right tabular-nums min-[60rem]:sr-only'>{volume}</span>
             </label>
+            <span className='hidden text-[0.65rem] font-medium tracking-wide text-muted-foreground uppercase min-[60rem]:block'>
+              {isRoomActive ? snapshot.playback.state : snapshot.status}
+            </span>
           </div>
 
           {command.isError ? (
@@ -542,7 +546,7 @@ export const HostPlaybackPanel = ({
             key={snapshot.recentActivity.id}
             role='status'
             aria-live='polite'
-            className='shrink-0 text-xs text-muted-foreground'
+            className='shrink-0 truncate text-xs text-muted-foreground'
           >
             {snapshot.recentActivity.status === 'removed'
               ? `${snapshot.recentActivity.videoTitle}, requested by ${snapshot.recentActivity.requesterDisplayName}, was removed.`
@@ -554,9 +558,27 @@ export const HostPlaybackPanel = ({
           </p>
         ) : null}
 
-        <div className='min-[60rem]:min-h-0 min-[60rem]:flex-1'>{queue}</div>
-        <div className='shrink-0'>{invitation}</div>
-        {roomActions}
+        <div className='min-w-0 min-[60rem]:min-h-0 min-[60rem]:flex-1 min-[60rem]:overflow-hidden'>
+          <RoomSyncPanel initialSnapshot={initialSnapshot} showGuests canModerate display='tv' />
+        </div>
+        {guestUrl && qrCodeDataUrl ? (
+          <div className='shrink-0'>
+            <RoomJoiningDisplay
+              guestUrl={guestUrl}
+              qrCodeDataUrl={qrCodeDataUrl}
+              roomCode={roomCode}
+            />
+          </div>
+        ) : null}
+        <div className='flex shrink-0 items-center justify-between gap-4 border-t border-border pt-4'>
+          <Link
+            href='/privacy'
+            className='text-xs text-muted-foreground underline underline-offset-4'
+          >
+            Privacy notice
+          </Link>
+          <EndRoomControl action={endAction} />
+        </div>
       </aside>
     </div>
   )

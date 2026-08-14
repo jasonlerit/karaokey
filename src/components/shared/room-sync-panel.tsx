@@ -119,7 +119,7 @@ export const RoomSyncPanel = ({
     <section
       className={cn(
         'rounded-xl border border-border text-left',
-        display === 'tv' ? 'flex h-full min-h-0 flex-col p-3' : 'mt-6 p-4',
+        display === 'tv' ? 'flex h-full min-h-0 flex-col overflow-hidden p-2.5' : 'mt-6 p-4',
       )}
       aria-labelledby='shared-queue-title'
     >
@@ -158,7 +158,7 @@ export const RoomSyncPanel = ({
         </p>
       ) : null}
 
-      {showGuests && snapshot.presence.guests?.length ? (
+      {showGuests && snapshot.presence.guests?.length && display !== 'tv' ? (
         <p className='mt-3 text-sm text-muted-foreground'>
           {snapshot.presence.guests.map((guest) => guest.displayName).join(', ')}
         </p>
@@ -166,16 +166,15 @@ export const RoomSyncPanel = ({
 
       <div
         className={cn(
-          'mt-4 border-t border-border pt-4',
-          display === 'tv' && 'flex min-h-0 flex-1 flex-col',
+          display === 'tv'
+            ? 'mt-2 border-t border-border pt-2'
+            : 'mt-4 border-t border-border pt-4',
+          display === 'tv' && 'min-h-0 flex-1 overflow-y-auto pr-1',
         )}
       >
         <h2
           id='shared-queue-title'
-          className={cn(
-            'flex items-center gap-2 font-semibold',
-            display === 'tv' ? 'text-xl' : 'text-base',
-          )}
+          className={cn('flex items-center gap-2 font-semibold', 'text-base')}
         >
           <ListMusic aria-hidden='true' className='size-4 text-muted-foreground' />
           Shared queue
@@ -184,13 +183,13 @@ export const RoomSyncPanel = ({
           <div
             className={cn(
               'mt-3 rounded-lg border border-primary/20 bg-primary/10',
-              display === 'tv' ? 'p-2' : 'p-3',
+              display === 'tv' ? 'mt-2 p-1.5' : 'mt-3 p-3',
             )}
           >
             <p className='flex items-center gap-2 text-[0.65rem] font-semibold tracking-wide text-primary uppercase'>
               <Music2 aria-hidden='true' className='size-3.5' /> Now playing
             </p>
-            <p className={cn('mt-1 font-medium', display === 'tv' && 'line-clamp-2 text-sm')}>
+            <p className={cn('mt-1 font-medium', display === 'tv' && 'truncate text-sm')}>
               {currentItem.video.title}
             </p>
             <p
@@ -208,32 +207,17 @@ export const RoomSyncPanel = ({
         ) : (
           <p className='mt-3 text-sm text-muted-foreground'>Nothing is playing yet.</p>
         )}
-        <p className='mt-4 text-sm font-medium'>Up next</p>
+        <p className={cn('text-sm font-medium', display === 'tv' ? 'mt-2' : 'mt-4')}>Up next</p>
         {upcomingItems.length ? (
-          <ol
-            className={cn(
-              'mt-3 space-y-2',
-              display === 'tv' && 'min-h-0 flex-1 overflow-y-auto pr-1',
-            )}
-          >
+          <ol className={cn('space-y-2', display === 'tv' ? 'mt-1' : 'mt-3')}>
             {upcomingItems.map((item) => (
-              <li
-                key={item.id}
-                className={cn(
-                  'flex items-center gap-3 text-sm',
-                  display === 'tv' ? 'min-h-14' : 'min-h-11',
-                )}
-              >
+              <li key={item.id} className={cn('flex items-center gap-3 text-sm', 'min-h-11')}>
                 <span className='w-5 shrink-0 text-right font-medium text-muted-foreground'>
                   <span className='sr-only'>Position </span>
                   {item.position}.
                 </span>
                 <span className='min-w-0 flex-1'>
-                  <span
-                    className={cn('block truncate font-medium', display === 'tv' && 'text-base')}
-                  >
-                    {item.video.title}
-                  </span>
+                  <span className='block truncate font-medium'>{item.video.title}</span>
                   <span className='block truncate text-xs text-muted-foreground'>
                     {item.requester.guestId === viewerGuestId
                       ? `${item.requester.displayName} (You)`
