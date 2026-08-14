@@ -22,7 +22,7 @@ Hosts create a room on a TV, while guests scan a QR code to join, search YouTube
 1. Install dependencies:
 
    ```sh
-   npm install
+   pnpm install
    ```
 
 2. Copy `.env.example` to `.env` and configure the required values.
@@ -30,13 +30,13 @@ Hosts create a room on a TV, while guests scan a QR code to join, search YouTube
 3. Run database migrations:
 
    ```sh
-   npm run db:migrate
+   pnpm db:migrate
    ```
 
 4. Start the development server:
 
    ```sh
-   npm run dev
+   pnpm dev
    ```
 
 Open [http://localhost:3000](http://localhost:3000).
@@ -44,9 +44,9 @@ Open [http://localhost:3000](http://localhost:3000).
 ## Checks
 
 ```sh
-npm run check
-npm test
-npm run build
+pnpm check
+pnpm test
+pnpm build
 ```
 
 ## Status

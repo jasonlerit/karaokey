@@ -41,7 +41,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## UI and styling
 
 - Use shadcn/ui with the `base-nova` Base UI preset configured in `components.json`.
-- Add shadcn components with `npx shadcn@latest add <component>` and review every generated dependency and file change.
+- Add shadcn components with `pnpm dlx shadcn@latest add <component>` and review every generated dependency and file change.
 - Do not overwrite customized files in `src/components/ui` without explicit user authorization.
 - Compose application-specific UI in route or shared component folders instead of adding product behavior to UI primitives.
 - Use the `cn` helper from `src/lib/utils.ts` to merge conditional Tailwind classes.
@@ -62,7 +62,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Use Drizzle ORM with PostgreSQL.
 - Use camelCase names in TypeScript and snake_case identifiers in PostgreSQL.
 - Define each schema object in its own `src/db/schemas/*.schema.ts` file and export it from `src/db/schemas/index.ts`.
-- Generate migrations with `npm run db:generate` and commit the generated migration files.
+- Generate migrations with `pnpm db:generate` and commit the generated migration files.
 - Do not apply migrations with `db:migrate` or `db:push` without explicit user authorization.
 
 ## TypeScript and validation
@@ -78,7 +78,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Format source files with the repository Prettier configuration; do not hand-format against it.
 - Use single quotes in TypeScript and JSX, omit semicolons, and keep trailing commas where supported.
 - Let `prettier-plugin-tailwindcss` order Tailwind classes using `src/app/globals.css`.
-- Run `npm run format` after editing supported files and include formatting changes in the same task.
+- Run `pnpm format` after editing supported files and include formatting changes in the same task.
 
 ## Commit messages
 
@@ -91,8 +91,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Verification
 
-- Run `npm run check` after code changes; it verifies formatting, ESLint, and TypeScript.
-- Before creating a commit, run `npm run check` and only commit when it passes. If it cannot run or fails for an unrelated reason, report that clearly before committing.
+- Run `pnpm check` after code changes; it verifies formatting, ESLint, and TypeScript.
+- Before creating a commit, run `pnpm check` and only commit when it passes. If it cannot run or fails for an unrelated reason, report that clearly before committing.
 - Run relevant tests when they exist or when a change adds them.
-- Run `npm run db:generate` after schema changes and review the generated SQL.
+- Run `pnpm db:generate` after schema changes and review the generated SQL.
 - Report checks that could not be run and explain why.

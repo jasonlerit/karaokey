@@ -2,6 +2,7 @@
   "name": "nextjs-app",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.14.0",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -9,7 +10,7 @@
     "lint": "eslint",
     "test": "node --experimental-strip-types --test src/common/*.test.ts",
     "typecheck": "tsc --noEmit",
-    "check": "npm run format:check && npm run lint && npm run typecheck",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "db:generate": "drizzle-kit generate",

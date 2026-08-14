@@ -33,9 +33,9 @@ events classify requests and quota failures but are not the quota system of reco
 Run against the release commit with production environment validation enabled:
 
 ```sh
-npm run check
-npm test
-npm run build
+pnpm check
+pnpm test
+pnpm build
 ```
 
 The Node test suite covers queue limits and ordering policy, stale playback and recovery decisions,
