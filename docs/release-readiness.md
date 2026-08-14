@@ -2,6 +2,9 @@
 
 Last reviewed: 2026-08-14
 
+Status: Deferred while the application remains a personal project. Use this checklist when work
+resumes toward a production release candidate.
+
 KARA-014 is complete only after every release gate below has evidence from the release candidate.
 Repository checks cover deterministic behavior; they do not substitute for real browsers, devices,
 production-like latency, or the YouTube project owner's quota review.

@@ -4,11 +4,11 @@ Last updated: 2026-08-14
 
 ## Current phase
 
-Phase 7 — Operational readiness
+UI refinement — scope pending
 
 ## Current
 
-KARA-014 — Release-candidate validation
+Discuss and scope the next UI adjustments.
 
 ## Last completed
 
@@ -16,13 +16,14 @@ KARA-013 — Privacy, retention, and abuse protection
 
 ## Next
 
-Run and record the manual browser, device, accessibility, performance, and YouTube account-owner
-release gates in `docs/release-readiness.md`.
+Decide whether the UI adjustments clarify existing requirements or require PRD changes and a new
+implementation spec.
 
 ## Blockers
 
-Release-candidate browser/device access, production-like performance infrastructure, and the
-YouTube API project owner are required to close the remaining release gates.
+None for UI refinement. KARA-014 release-candidate validation is deferred while the application is
+a personal project; closing it later still requires browser/device access, production-like
+performance infrastructure, and the YouTube API project owner.
 
 ## Notes
 
@@ -167,6 +168,10 @@ YouTube API project owner are required to close the remaining release gates.
   matrix, test conditions, privacy limits, and a dated YouTube policy/quota checklist. Gates that
   require a release environment, real devices, or the API project owner remain explicitly unrun.
 - KARA-014 required no database migration.
+- KARA-014 release-candidate validation is deferred for the personal-project phase. Its implemented
+  operational-readiness work remains in place, but the manual browser, device, accessibility,
+  performance, and YouTube account-owner gates in `docs/release-readiness.md` have not been run and
+  KARA-014 is not complete.
 - TV testing exposed a browser that reports a 960×540 CSS viewport despite a larger physical
   panel. The host switches to its landscape player/sidebar layout at that width, and the
   idle QR panel becomes compact so the queue and joining details remain visible without an initial

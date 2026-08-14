@@ -1,5 +1,11 @@
 # KARA-014 — Accessibility, compatibility, and operational readiness
 
+## Status
+
+Deferred while the application remains a personal project. The implemented operational-readiness
+work is retained, but the release-candidate validation gates are unrun and this spec is not
+complete.
+
 ## Summary
 
 Validate the complete MVP against its accessibility, browser compatibility, responsiveness, performance, reliability, observability, policy, and automated-quality commitments.
