@@ -4,11 +4,11 @@ Last updated: 2026-08-14
 
 ## Current phase
 
-UI refinement — scope pending
+UI refinement
 
 ## Current
 
-Discuss and scope the next UI adjustments.
+KARA-015 — Home and host-room UI refinement
 
 ## Last completed
 
@@ -16,8 +16,8 @@ KARA-013 — Privacy, retention, and abuse protection
 
 ## Next
 
-Decide whether the UI adjustments clarify existing requirements or require PRD changes and a new
-implementation spec.
+Implement and verify the home navbar and full-viewport host-room layout described in
+`docs/specs/KARA-015-home-and-host-room-ui-refinement.md`.
 
 ## Blockers
 
@@ -172,6 +172,8 @@ performance infrastructure, and the YouTube API project owner.
   operational-readiness work remains in place, but the manual browser, device, accessibility,
   performance, and YouTube account-owner gates in `docs/release-readiness.md` have not been run and
   KARA-014 is not complete.
+- KARA-015 is a presentation refinement and does not change the PRD. It preserves the existing host
+  playback controls and moves them below Invite Singers in the right column.
 - TV testing exposed a browser that reports a 960×540 CSS viewport despite a larger physical
   panel. The host switches to its landscape player/sidebar layout at that width, and the
   idle QR panel becomes compact so the queue and joining details remain visible without an initial
